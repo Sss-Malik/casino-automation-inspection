@@ -1,0 +1,251 @@
+#main {
+  background-color: #0066B2;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container-fluid {
+  display: flex;
+  height: 100vh;
+}
+
+.left-column {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.right-column {
+  flex: 0 0 60%;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 19px 16px;
+  font-size: 1rem;
+  border-radius: 100px !important;
+  height: 60px;
+  font-weight: 400;
+}
+
+.left-column h2 {
+  color: var(--White, #FFF);
+  text-align: center;
+  font-family: "Bagoss Standard";
+  font-size: 25px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.right-column img {
+  max-width: 100%;
+  height: 100%;
+}
+
+.login-logo {
+  margin-bottom: 20px;
+}
+
+.login-logo img {
+  max-width: 135px;
+}
+
+.login-card {
+  background-color: #0066B2;
+  border: none;
+  margin: 20px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.form-control {
+  background: transparent;
+  color: #D9E8F3;
+  border: 1px solid #D9E8F3;
+  border-radius: 25px;
+}
+
+.form-control::placeholder {
+  color: #D9E8F3;
+}
+
+.btn-primary {
+  background-color: #DBB72B;
+  color: #fff;
+  border: none;
+  border-radius: 100px;
+  height: 60px;
+  margin-top: 40px !important;
+  padding: 12px 30px;
+  font-size: 20px;
+}
+
+.btn-primary:hover {
+  background-color: #DBB72B;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.remember-me label {
+  font-size: 16px;
+  color: #fff;
+}
+
+.remember-me a {
+  text-decoration: none;
+}
+
+.signup-text {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #fff;
+}
+
+.signup-text a {
+  color: #DBB72B;
+  text-decoration: none;
+}
+
+textarea.form-control {
+  min-height: 160px;
+  border-radius: 30px !important;
+}
+
+.iti {
+  position: relative;
+  display: inline-block;
+  width: 100% !important;
+}
+
+.reset-links a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  text-decoration: none;
+  margin-top: 32px;
+  justify-content: center;
+}
+
+.password-btn.btn-primary {
+  margin-top: 20px !important;
+}
+
+.btn-primary:hover {
+  background-color: #bc9602;
+}
+
+.left-column .column-text {
+  width: 330px;
+}
+
+.left-column form p {
+  color: #fff;
+  text-align: left;
+}
+
+.form-control:focus {
+  color: #ffffff !important;
+  background-color: #ffffff00 !important;
+  border-color: #ffffff !important;
+  outline: 0;
+  box-shadow: none !important;
+}
+
+input:-internal-autofill-selected {
+  appearance: menulist-button;
+  background-image: none !important;
+  background-color: #ffffff00 !important;
+  color: #fff !important;
+}
+
+@media (max-width: 768px) {
+  .left-column {
+    flex: 0 0 100%;
+    padding: 20px;
+  }
+
+  .left-column .column-text {
+    width: 100%;
+  }
+
+  .right-column {
+    flex: 0 0 100%;
+  }
+
+  .right-column img {
+    height: auto;
+  }
+
+  .container-fluid {
+    display: flex;
+    height: 100vh;
+    flex-wrap: wrap;
+  }
+}
+
+.left-column .form-control {
+    /* adding .left-column class to aviod conflict */
+    border-radius: 27px !important;
+    line-height: 22px !important;
+    font-family: 'Bagoss Standard', serif;
+    padding: 16px !important;
+    background: transparent;
+    color: #D9E8F3;
+    border: 1px solid #D9E8F3 !important;
+}
+.login-card {
+    background-color: #0066B2;
+    border: none;
+    margin: 20px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 432px;
+}
+.remember-me label {
+    font-size: 16px;
+    color: #fff;
+    font-family: 'Bagoss Standard';
+}
+.remember-me a {
+    text-decoration: none;
+    font-family: Bagoss Standard;
+    font-size: 16px;
+    line-height: 26px;
+}
+.btn-primary {
+    background-color: #DBB72B;
+    color: #fff;
+    border: none;
+    border-radius: 100px;
+    height: 60px;
+    font-family: 'Bagoss Standard';
+    margin-top: 40px !important;
+    padding: 12px 30px;
+    font-size: 20px;
+}
+.signup-text {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #fff;
+    font-family: Bagoss Standard;
+    line-height: 26px;
+    text-align: center !important;
+}

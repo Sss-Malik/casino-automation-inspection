@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign UP Page</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div id="main" class="container-fluid p-0">
+      <div class="left-column">
+        <div class="login-logo">
+          <img src="images/4ever.svg" alt="Logo" />
+        </div>
+        <h2>Sign Up for an Account</h2>
+        <div class="card login-card">
+          <form>
+            <div class="mb-3">
+              <input
+                type="email"
+                class="form-control"
+                placeholder="Email Address"
+                required
+              />
+            </div>
+            <div class="mb-3 position-relative">
+              <input
+                type="password"
+                class="form-control"
+                placeholder="Password"
+                required
+              />
+              <span
+                class="position-absolute top-50 end-0 translate-middle-y me-3 text-white"
+                style="cursor: pointer"
+              >
+                <i class="bi bi-eye-slash"></i>
+              </span>
+            </div>
+            <div class="remember-me">
+              <div>
+                <input type="checkbox" id="rememberMe" />
+                <label for="rememberMe">I accept all terms & conditions</label>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mt-4">
+              Sign Up
+            </button>
+          </form>
+        </div>
+      </div>
+      <div class="right-column">
+        <img src="images/Isolation_Mode.svg" alt="Background Image" />
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

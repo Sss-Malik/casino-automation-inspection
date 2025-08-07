@@ -1,0 +1,253 @@
+@font-face {
+    font-family: 'Bagoss Standard';
+    src: url('../fonts/BagossStandardTRIAL-Regular.woff2') format('woff2'),
+    url('../fonts/BagossStandardTRIAL-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Bagoss Standard';
+    src: url('../fonts/BagossStandardTRIAL-Medium.woff2') format('woff2'),
+    url('../fonts/BagossStandardTRIAL-Medium.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Bagoss Standard';
+    src: url('../fonts/BagossStandardTRIAL-SemiBold.woff2') format('woff2'),
+    url('../fonts/BagossStandardTRIAL-SemiBold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Bagoss Standard';
+    src: url('../fonts/BagossStandardTRIAL-Bold.woff2') format('woff2'),
+    url('../fonts/BagossStandardTRIAL-Bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* Apply the font */
+body {
+    font-family: 'Bagoss Standard', sans-serif;
+}
+
+/* login page */
+.left-column .form-control {
+    /* adding .left-column class to aviod conflict */
+    border-radius: 27px !important;
+    line-height: 22px !important;
+    font-family: 'Bagoss Standard', serif;
+    padding: 16px !important;
+    background: transparent;
+    color: #D9E8F3;
+    border: 1px solid #D9E8F3 !important;
+}
+.login-card {
+    background-color: #0066B2;
+    border: none;
+    margin: 20px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 432px;
+}
+.remember-me label {
+    font-size: 16px;
+    color: #fff;
+    font-family: 'Bagoss Standard';
+}
+.remember-me a {
+    text-decoration: none;
+    font-family: Bagoss Standard;
+    font-size: 16px;
+    line-height: 26px;
+}
+.btn-primary {
+    background-color: #DBB72B;
+    color: #fff;
+    border: none;
+    border-radius: 100px;
+    height: 60px;
+    font-family: 'Bagoss Standard';
+    margin-top: 40px !important;
+    padding: 12px 30px;
+    font-size: 20px;
+}
+.signup-text {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #fff;
+    font-family: Bagoss Standard;
+    line-height: 26px;
+    text-align: center !important;
+}
+
+/* Dashboard */
+.waqf-logo-img {
+    height: 40px;
+    width: 136px;
+}
+.waqf-card h5 {
+    font-family: Bagoss Standard;
+    font-weight: 500 !important;
+    font-size: 20px !important;
+    line-height: 22.42px;
+    color: #000;
+}
+
+/* My Profile */
+
+.profile-container h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    font-family: 'Bagoss Standard';
+    font-weight: 500;
+    font-size: 25px;
+    line-height: 28.03px;
+    color: #000;
+}
+.profile-container {
+    width: 432px;
+    margin: auto;
+    margin-top: 32px;
+    padding: 0px;
+    background-color: #ffffff;
+    border-radius: 10px;
+}
+
+/* New Password */
+.left-column .column-text {
+    width: 330px;
+    font-family: 'Bagoss Standard';
+}
+.left-column form p {
+    color: #fff;
+    text-align: left;
+    font-family: 'Bagoss Standard';
+}
+
+/* update password */
+
+.profile-container .btn-update {
+    width: 100%;
+    background-color: #DBB72B;
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 15px;
+    font-size: 16px;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+/* Forget password */
+
+.left-column p{
+    font-family: 'Bagoss Standard';
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 22px;
+    letter-spacing: 0%;
+    text-align: center;
+}
+
+/* adding new css for password eye icon */
+.profile-container .eye-icon{
+    color: #0066B2 !important;
+}
+
+/* user dashboard */
+.top-cards h5{
+    font-family: 'Bagoss Standard';
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 22.42px;
+    color: #000;
+}
+.bg-bottom .text-muted {
+    font-family: Bagoss Standard;
+    font-size: 20px;
+    margin-bottom: 0px !important;
+    font-weight: 500;
+    line-height: 22.42px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #DBB72B !important;
+}
+
+@media (max-width: 1300px) {
+    .custom-table {
+        min-width: 700px;
+        width: 100%;
+    }
+    .table-div{
+        width: 100%;
+        overflow: auto;
+    }
+}
+
+
+/* user Donation page */
+
+.donate-button {
+    width: 100%;
+    margin-top: 20px;
+    background-color: #dbb72b;
+    color: #fff;
+    border: none;
+    border-radius: 35px;
+    padding: 16px 20px;
+    transition: all 0.3s;
+    font-family: 'Bagoss Standard';
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 22.42px;
+    position: relative;
+}
+.donation-container {
+    display: flex;
+    flex-wrap: nowrap;
+    min-height: 90vh;
+    padding: 20px;
+}
+.payment-methods button {
+    background: #fff;
+    color: #0066b2;
+    border: 1px solid #0066b2;
+    width: 50%;
+    font-family: 'Bagoss Standard';
+    height: 60px;
+    justify-content: center;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+@media (max-width: 767) {
+    .donation-container {
+        display: flex;
+        flex-wrap: wrap;
+        height: auto;
+        padding: 20px;
+    }
+}
+
+/* Header menu nav bar */
+
+.menu-img {
+    cursor: pointer;
+    pointer-events: auto;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 0px;
+}
+

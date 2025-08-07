@@ -1,0 +1,657 @@
+
+/* header */
+
+/* Header Styles */
+.header {
+    background-color: #ffffff; /* White background */
+}
+
+.logo-img {
+    height: 30px; /* Adjust logo height */
+}
+
+.nav-link {
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 400;
+    color: #0066B2;
+}
+
+.menu-icon {
+    border: none;
+    background: none;
+    font-size: 1.5rem; /* Icon size */
+    cursor: pointer;
+}
+
+/* Add hover effects for links */
+.nav-link:hover {
+    text-decoration: underline;
+    color: #0066B2;
+}
+
+/* Base styling */
+nav {
+    position: relative;
+}
+
+.menu-img {
+    cursor: pointer;
+    pointer-events: auto;
+    padding: 10px;
+    background-color: #E6F0F7;
+    border-radius: 100px;
+}
+
+/* Dropdown menu styling */
+.dropdown {
+    position: relative;
+}
+
+.header-dropdown {
+    position: absolute;
+    top: 100%;
+    margin-top: 16px;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: none;
+    min-width: 200px;
+    z-index: 1000;
+    padding: 10px 0px ;
+}
+
+.header-dropdown a {
+    display: block;
+    color: #0066B2;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 27px;
+    font-family: Bagoss Standard;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
+    text-align: left;
+}
+
+.header-dropdown a:hover {
+    background-color: #E6F0F7;
+    color: #0066B2;
+}
+
+
+
+/* dashboard */
+
+
+.card {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0px 4px 40px 0px #0000001F;
+}
+
+.bg-light {
+    background-color: #FBF8EA !important;
+}
+.text-muted{
+    margin-bottom: 4px !important;
+    font-family: Bagoss Standard;
+    font-size: 16px;
+    font-weight: 500 !important;
+    line-height: 26px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #DBB72B !important;
+
+}
+.top-cards h4{
+    font-family: Bagoss Standard;
+    font-size: 25px;
+    font-weight: 400 !important;
+    line-height: 32px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #0066B2;
+}
+.bg-bottom{
+    background-color: #FBF8EA;
+}
+.bg-bottom .text-muted{
+    font-family: Bagoss Standard;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 22.42px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #DBB72B !important;
+}
+.bg-bottom h4{
+    font-family: Bagoss Standard;
+    font-size: 31px;
+    font-weight: 400 !important;
+    line-height: 35px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #0066B2;
+}
+.top-cards .rounded, .top-cards{
+    border-radius: 20px !important;
+}
+.top-cards{
+    padding: 32px;
+}
+.btn-warning {
+    background-color: #DBB72B;
+    color: #fff;
+    border-radius: 27px;
+    padding: 12px 60px;
+    border: none;
+}
+
+.btn-warning:hover {
+    background-color: #AA8700;
+    color: #ffffff;
+}
+button.btn.btn-outline-primary {
+    color: #0066B2;
+    border: 1px solid #0066B2;
+    border-radius: 30px;
+    padding: 12px 60px;
+}
+button.btn.btn-outline-primary:hover {
+    color: #fff;
+    background-color: #0066B2;
+}
+
+.table thead th {
+    font-family: Bagoss Standard;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 26px;
+    border-radius: 8px 8px 0px 0px;
+    text-align: left;
+    color: #0066B2 !important;
+    background: #E6F0F7 !important;
+}
+
+.custom-table {
+    border-collapse: separate; /* For spacing between columns */
+    border-spacing: 20px; /* Gap of 20px between columns */
+}
+
+.custom-table th,
+.custom-table td {
+    border: none; /* Remove borders */
+    padding: 10px 20px; /* Add some padding for better spacing */
+}
+.custom-table th, .custom-table td {
+    border: none;
+    padding: 10px 20px;
+    color: #0066B2;
+    font-family: Bagoss Standard;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+
+.custom-table td img {
+    width: 8px;
+    margin-bottom: 4px;
+    margin-right: 8px;
+}
+/* Profile css */
+
+.profile-container {
+    width: 432px;
+    margin: auto;
+    margin-top: 32px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+}
+.profile-container h1 {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.profile-container .form-control {
+    border: 2px solid #0066B2;
+    border-radius: 30px !important;
+    color: #0066B2 !important;
+    padding: 10px 15px;
+    width: 100%;
+}
+.profile-container  .form-control::placeholder {
+    color: #0066B2;
+}
+.profile-container .form-control:focus {
+    box-shadow: none;
+    border-color: #0066B2;
+}
+.profile-container .form-control:focus, .payment-form .form-control:focus {
+    color: #0066B2 !important;
+    border-color: #0066B2 !important;
+}
+.profile-container .input-group-text {
+    border: none;
+    background-color: transparent;
+}
+.profile-container .btn-update {
+    width: 100%;
+    background-color: #DBB72B;
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 15px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.profile-container .btn-update:hover {
+    background-color: #0066B2;
+}
+
+.profile-container .btn-cancel {
+    background-color: #e5ae6c;
+    margin-top: 5px;
+}
+
+/* password css */
+
+.profile-container
+p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-family: Bagoss Standard;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 26px;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #0066B2;
+}
+.profile-container
+.dash-title p {
+    text-align: center;
+    width: 320px ;
+    margin: auto;
+    margin-bottom: 32px;
+}
+
+.profile-container .update-password .form-control::placeholder {
+    color: #D9E8F3;
+}
+
+/* donation */
+
+.donation-container {
+    display: flex;
+    flex-wrap: wrap;
+    height: 90vh;
+    padding: 20px;
+}
+
+.donation-left {
+    flex: 0 0 40%;
+    background-color: #0056b3;
+    color: #fff;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    text-align: center;
+}
+
+.donation-left h2 {
+    margin-bottom: 20px;
+    font-family: Bagoss Standard;
+    font-size: 64px;
+    font-weight: 400;
+    line-height: 71.74px;
+    text-align: center;
+    color: #dbb72b;
+}
+
+.donation-left p {
+    font-family: Bagoss Standard;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 22.42px;
+    text-align: center;
+    color: #fff;
+}
+
+.donation-right {
+    flex: 0 0 60%;
+    padding: 0px 60px;
+    position: relative;
+}
+
+.donation-right h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.donate-button {
+    width: calc(100% - 120px);
+    background-color: #dbb72b;
+    color: #fff;
+    border: none;
+    border-radius: 35px;
+    padding: 16px 20px;
+    transition: all 0.3s;
+    font-family: Bagoss Standard;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 22.42px;
+    position: absolute;
+    bottom: 0px;
+}
+
+.donate-button:hover {
+    background-color: #aa8700;
+    pointer-events: auto;
+}
+.donation-amount {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+.donation-amount button,
+.donation-amount input {
+    border: 1px solid #0066b2;
+    border-radius: 27px;
+    padding: 16px;
+    background: transparent;
+    color: #0066b2;
+    font-size: 20px;
+    line-height: 20px;
+    cursor: pointer;
+}
+.donation-amount button.active {
+    background-color: #dbb72b;
+    color: #fff;
+    border-color: #dbb72b;
+}
+#addAmountInput {
+    display: none;
+    width: 150px;
+    background-color: #dbb72b;
+    color: #fff;
+    text-align: left;
+    padding: 10px 20px;
+}
+.payment-methods {
+    display: flex;
+    justify-content: flex-start;
+    margin: 20px 0;
+    gap: 16px;
+}
+.payment-methods button {
+    background: #fff;
+    color: #0066b2;
+    border: 1px solid #0066b2;
+    width: 300px;
+    height: 60px;
+    justify-content: center;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.payment-methods button img {
+    width: 100%;
+    height: 60px;
+    object-fit: contain;
+}
+.form-group {
+    margin-bottom: 15px;
+}
+.form-control {
+    border-radius: 27px !important;
+    background: transparent;
+    color: #0066b2;
+    line-height: 22px !important;
+    padding: 16px !important;
+    border: 1px solid #0066b2 !important;
+}
+.payment-form .form-control:focus {
+    box-shadow: none;
+    border-color: #0066b2;
+}
+.payment-form .form-control:focus {
+    color: #0066b2 !important;
+    border-color: #0066b2 !important;
+}
+.btn-donate {
+    background-color: #ffc107;
+    color: #0056b3;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 30px;
+    font-size: 18px;
+    cursor: pointer;
+}
+#bankSelectionContainer {
+    display: none; /* Initially hidden */
+}
+#banktransferContainer p {
+    text-align: left;
+    font-size: 13px;
+    font-style: normal;
+    line-height: 16.67px;
+}
+.payment-form h3 {
+    color: #dbb72b;
+    text-align: left;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 26px; /* 162.5% */
+}
+button.btn.btn-donate {
+    color: #fff;
+    font-size: 20px;
+    border-radius: 30px;
+    width: 100%;
+    background-color: #dbb72b;
+    padding: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+.payment-methods button.active {
+    background-color: #dbb72b; /* Active button styling */
+    color: #fff;
+    border-color: #dbb72b;
+}
+
+/* Set placeholder color to white */
+::placeholder {
+    color: #0066b2 !important;
+    opacity: 1;
+}
+
+.custom-dropdown {
+    position: relative;
+}
+
+.search-box {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid #0066b2;
+    border-radius: 36px;
+    font-size: 20px;
+    outline: none;
+    color: #0066b2;
+    background-color: #fff;
+    cursor: pointer;
+}
+.search-icon {
+    position: absolute;
+    top: 50%;
+    right: 20px; /* Adjust spacing as needed */
+    transform: translateY(-50%);
+}
+
+.search-icon img {
+    width: 20px; /* Adjust size as needed */
+    height: 20px;
+}
+
+.search-box:focus {
+    border-color: #0066b2;
+}
+
+.dropdown-menu2 {
+    margin: 0;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #fff;
+    list-style: none;
+    position: absolute;
+    width: 100%;
+    border: 1px solid #0066b2;
+    overflow: hidden;
+    border-radius: 20px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000;
+}
+
+.dropdown-menu2 li {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 4px;
+    font-size: 20px;
+    color: #0066b2;
+    cursor: pointer;
+    border-radius: 4px;
+    background: #fff;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-menu2 li:hover {
+    background-color: #faf4df;
+}
+
+.dropdown-menu2 li img {
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+}
+
+.dropdown-menu2::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dropdown-menu2::-webkit-scrollbar-thumb {
+    background-color: #0066b2;
+    border-radius: 4px;
+}
+
+.dropdown-menu2::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+.thankyou.modal.show .modal-dialog {
+    transform: none;
+    top: 25%;
+}
+.thankyou.modal.show .modal-dialog img {
+    width: 100px;
+    height: 100px;
+    margin: auto;
+    margin-top: 20px;
+}
+.thankyou.modal.show .modal-dialog p{
+    font-family: Bagoss Standard;
+    font-size: 25px;
+    font-weight: 400;
+    line-height: 32px;
+    text-align: center;
+    color: #000;
+
+}
+
+
+@media (max-width: 768px) {
+    .left-column {
+        flex: 0 0 100%;
+        padding: 20px;
+    }
+    .top-cards{
+        padding: 16px;
+    }
+    button.btn.btn-outline-primary {
+        padding: 12px 24px;
+    }
+    .custom-table {
+        width: 700px;
+    }
+    .table-div{
+        width: 100%;
+        overflow: auto;
+    }
+
+    .left-column .column-text {
+        width: 100%;
+    }
+
+    .right-column {
+        flex: 0 0 100%;
+    }
+
+    .right-column img {
+        height: auto;
+    }
+
+    .container-fluid {
+        display: flex;
+        height: 100vh;
+        flex-wrap: wrap;
+    }
+    .profile-container {
+        width: 100%;
+    }
+
+    .donation-left {
+        flex: 0 0 100%;
+        margin-bottom: 20px;
+    }
+
+    .donation-right {
+        flex: 0 0 100%;
+        width: 100%;
+        height: auto;
+        overflow: auto;
+        padding: 0px;
+    }
+    .donation-container {
+        height: 100vh;
+        overflow: auto;
+    }
+    .donate-button {
+        width: 100%;
+        position: relative;
+        margin-top: 20px;
+    }
+}
