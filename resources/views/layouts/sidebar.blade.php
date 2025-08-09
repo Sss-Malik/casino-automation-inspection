@@ -64,7 +64,8 @@
                         style="position: relative; left: 0px; top: 0px; margin: 0px; transform: translate(120px, 228.889px); box-sizing: border-box; display: none;"
                         data-popper-placement="bottom">
                         <li class="slide side-menu__label1"><a class="side-menu__item" href="#">Requests</a></li>
-                        <li class="slide"><a class="side-menu__item" href="{{ route('request.index') }}">View requests</a></li>
+                        <li class="slide"><a class="side-menu__item" href="{{ route('request.index') }}">Make requests</a></li>
+                        <li class="slide"><a class="side-menu__item" href="{{ route('request.view') }}">View requests</a></li>
                     </ul>
                 </li>
                 <li class="slide has-sub "><a href="javascript:void(0);" class="side-menu__item">

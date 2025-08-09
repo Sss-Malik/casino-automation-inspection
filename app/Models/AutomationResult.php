@@ -26,4 +26,9 @@ class AutomationResult extends Model
     public function backend() {
         return $this->belongsTo(BackendGames::class, 'backend_id');
     }
+
+    public function request()
+    {
+        return $this->hasOne(AutomationRequest::class, 'task_id', 'task_id');
+    }
 }

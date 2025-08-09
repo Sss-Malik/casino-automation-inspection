@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Automation;
 
 use App\Http\Controllers\Controller;
+use App\Models\AutomationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 class RequestController extends Controller
@@ -18,7 +19,7 @@ class RequestController extends Controller
             'read-account'     => ['account_id'],
             'create-account'   => [],
             'recharge-account' => ['account_id','count', 'order_id'],
-            'withdraw-account' => ['account_id','count'],
+            'withdraw-account' => ['account_id','count', 'redeem_id'],
             'freeplay-account' => ['account_id','type'],
         ];
 
@@ -36,7 +37,8 @@ class RequestController extends Controller
             'count'      => 'sometimes|integer|min:1',
             'type'       => 'sometimes|string',
             'repeat'     => 'required|integer|min:1',
-            'order_id' => 'sometimes|string'
+            'order_id' => 'sometimes|string',
+            'redeem_id' => 'sometimes'
         ]);
 
         $apiBase = config('services.casino_automation.base_url');
@@ -46,7 +48,7 @@ class RequestController extends Controller
         for ($i = 0; $i < $data['repeat']; $i++) {
             // build JSON payload
             $body = ['backend' => $data['backend']];
-            foreach (['account_id','count','type'] as $f) {
+            foreach (['account_id','count','type', 'redeem_id'] as $f) {
                 if (!empty($data[$f])) {
                     $body[$f] = $data[$f];
                 }
@@ -81,6 +83,17 @@ class RequestController extends Controller
         return back()->with('responses', $responses);
     }
 
+
+    public function view(Request $request)
+    {
+        $requests = AutomationRequest::with('result.backend')
+            ->latest('created_at')
+            ->get();
+
+        return view('automation.requests.view', compact('requests'));
+    }
+
+
     // helper getters so validation and view share the same lists
     private function backends()
     {
@@ -91,9 +104,9 @@ class RequestController extends Controller
     {
         return [
             'read-account'     => ['account_id'],
-            'create-account'   => [],                          // no extra fields
+            'create-account'   => [],
             'recharge-account' => ['account_id','count', 'order_id'],
-            'withdraw-account' => ['account_id','count'],
+            'withdraw-account' => ['account_id','count', 'redeem_id'],
             'freeplay-account' => ['account_id','type'],
         ];
     }
