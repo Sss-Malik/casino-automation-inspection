@@ -64,6 +64,7 @@
                                 <th>Order ID</th>
                                 <th>Screenshot</th>
                                 <th>Updated</th>
+                                <th>Action</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -96,6 +97,13 @@
                                         @endif
                                     </td>
                                     <td>{{ $task->updated_at->timezone('Asia/Karachi')->format('F j, Y g:i A') }}</td>
+                                    <td>
+                                        <a href="{{ route('logs.index', ['taskId' => $task->task_id]) }}">
+                                            <button class="btn btn-sm btn-primary">
+                                                View logs
+                                            </button>
+                                        </a>
+                                    </td>
                                 </tr>
                             @endforeach
                             </tbody>

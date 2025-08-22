@@ -12,4 +12,9 @@ class Logs extends Model
     public function backend() {
         return $this->belongsTo(BackendGames::class, 'backend_id');
     }
+
+    public function automationResult() {
+        return $this->belongsTo(AutomationResult::class, 'task_id', 'task_id');
+    }
+
 }

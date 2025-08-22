@@ -31,4 +31,9 @@ class AutomationResult extends Model
     {
         return $this->hasOne(AutomationRequest::class, 'task_id', 'task_id');
     }
+
+
+    public function logs() {
+        return $this->hasMany(Logs::class, 'task_id', 'task_id');
+    }
 }
