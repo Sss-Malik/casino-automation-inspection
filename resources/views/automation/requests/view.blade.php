@@ -135,6 +135,7 @@
                             <div><strong>Order ID:</strong> <span id="t-order">—</span></div>
                             <div><strong>Updated:</strong> <span id="t-updated">—</span></div>
                             <div><strong>Screenshot:</strong> <a id="t-shot" href="#" target="_blank" rel="noopener">—</a></div>
+                            <div><strong>Logs:</strong> <a href="#" id="t-logs"> <button class="btn btn-sm btn-primary">View logs</button></a></div>
                         </div>
                     </div>
                     <hr>
@@ -199,6 +200,12 @@
 
                 // Timestamps may be strings; show raw
                 $('#t-updated').text(task?.updated_at ?? '—');
+
+                $('#t-logs').attr('href',
+                    task?.task_id
+                        ? "{{ route('logs.index') }}/" + task.task_id
+                        : "{{ route('logs.index') }}"
+                );
 
                 // Screenshot link
                 if (task?.screenshot_url) {

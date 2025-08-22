@@ -102,7 +102,7 @@
 
             $('#backendFilter').on('change', function () {
                 const value = $(this).val();
-                table.column(4).search(value).draw(); // 6th index = Backend column
+                table.column(4).search(value).draw();
             });
         });
     </script>

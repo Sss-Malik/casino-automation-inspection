@@ -26,7 +26,7 @@ class LoginController extends Controller
         $user = User::where('email', $data['email'])->first();
         if (
             ! $user
-            || $user->email !== 'super-admin@admin.com'
+            || $user->email !== 'admin@socialslots.games'
             || ! Hash::check($data['password'], $user->password)
         ) {
             return back()->withErrors([

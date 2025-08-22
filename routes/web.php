@@ -23,7 +23,7 @@ Route::group(['middleware' => 'auth'], function () {
     })->name('dashboard');
 
     Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
-    Route::get('logs', [LogsController::class, 'index'])->name('logs.index');
+    Route::get('logs/{taskId?}', [LogsController::class, 'index'])->name('logs.index');
     Route::get('requests/make', [RequestController::class, 'index'])->name('request.index');
     Route::get('requests/view', [RequestController::class, 'view'])->name('request.view');
     Route::post('requests/send', [RequestController::class, 'send'])->name('request.send');
