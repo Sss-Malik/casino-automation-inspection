@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Automation;
 use App\Http\Controllers\Controller;
 use App\Models\AutomationRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 class RequestController extends Controller
 {
@@ -21,6 +22,8 @@ class RequestController extends Controller
             'recharge-account' => ['account_id','count', 'order_id'],
             'withdraw-account' => ['account_id','count', 'redeem_id'],
             'freeplay-account' => ['account_id','type'],
+            'reset-password' => ['account_id'],
+            'read-account-user' => ['account_id']
         ];
 
         return view('automation.requests.index', compact('backends','endpoints'));
@@ -62,6 +65,13 @@ class RequestController extends Controller
             if ($data['endpoint'] === 'recharge-account') {
                 $client = $client->withHeaders([
                     'x-order-id' => $request->input('order_id')
+                ]);
+            }
+
+            if (in_array($data['endpoint'], ['reset-password', 'read-account-user', 'recharge-account', 'freeplay-account'])) {
+                $token = Auth::user()->tokens()->first()->token;
+                $client->withHeaders([
+                    'token' => $token
                 ]);
             }
 
@@ -108,6 +118,8 @@ class RequestController extends Controller
             'recharge-account' => ['account_id','count', 'order_id'],
             'withdraw-account' => ['account_id','count', 'redeem_id'],
             'freeplay-account' => ['account_id','type'],
+            'reset-password' => ['account_id'],
+            'read-account-user' => ['account_id']
         ];
     }
 }

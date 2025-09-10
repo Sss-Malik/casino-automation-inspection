@@ -77,6 +77,7 @@
                         data-popper-placement="bottom">
                         <li class="slide side-menu__label1"><a class="side-menu__item" href="#">Backend Accounts</a></li>
                         <li class="slide"><a class="side-menu__item" href="{{ route('backend.accounts.stats') }}">View stats</a></li>
+                        <li class="slide"><a class="side-menu__item" href="{{ route('backend.accounts.view.all') }}">View accounts</a></li>
                     </ul>
                 </li>
             </ul>

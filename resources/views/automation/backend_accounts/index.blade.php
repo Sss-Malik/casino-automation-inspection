@@ -72,6 +72,12 @@
                                     >
                                         Create more
                                     </a>
+                                    <a
+                                        href="{{ route('backend.accounts.view', ['backendId' => $backend->id]) }}"
+                                        class="btn btn-sm btn-secondary"
+                                    >
+                                        View
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
