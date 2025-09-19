@@ -115,7 +115,7 @@ class RequestController extends Controller
         return [
             'read-account'     => ['account_id'],
             'create-account'   => [],
-            'recharge-account' => ['account_id','count', 'order_id'],
+            'recharge-account' => ['account_id','count'],
             'withdraw-account' => ['account_id','count', 'redeem_id'],
             'freeplay-account' => ['account_id','type'],
             'reset-password' => ['account_id'],
