@@ -39,7 +39,9 @@
         <div class="col-12">
             <div class="card custom-card">
                 <div class="card-header">
-                    <h5>Backend Account Stats</h5>
+                    <div class="card-title">
+                        Backend Account Stats
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-striped mb-0">
