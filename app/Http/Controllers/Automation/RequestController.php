@@ -14,12 +14,12 @@ class RequestController extends Controller
         // backends + endpoints for the form
         $backends = [
             'gamevault','juwa','pandamaster','ultrapanda',
-            'orionstars','gameroom','vblink','milkyway','firekirin'
+            'orionstars','gameroom','vblink','milkyway','firekirin', 'river'
         ];
         $endpoints = [
             'read-account'     => ['account_id'],
             'create-account'   => [],
-            'recharge-account' => ['account_id','count', 'order_id'],
+            'recharge-account' => ['account_id','count', 'order_id', 'amount_to_deduct'],
             'withdraw-account' => ['account_id','count', 'redeem_id'],
             'freeplay-account' => ['account_id','type'],
             'reset-password' => ['account_id'],
@@ -41,7 +41,8 @@ class RequestController extends Controller
             'type'       => 'sometimes|string',
             'repeat'     => 'required|integer|min:1',
             'order_id' => 'sometimes|string',
-            'redeem_id' => 'sometimes'
+            'redeem_id' => 'sometimes',
+            'amount_to_deduct' => 'sometimes'
         ]);
 
         $apiBase = config('services.casino_automation.base_url');
@@ -51,7 +52,7 @@ class RequestController extends Controller
         for ($i = 0; $i < $data['repeat']; $i++) {
             // build JSON payload
             $body = ['backend' => $data['backend']];
-            foreach (['account_id','count','type', 'redeem_id'] as $f) {
+            foreach (['account_id','count','type', 'redeem_id', 'amount_to_deduct'] as $f) {
                 if (!empty($data[$f])) {
                     $body[$f] = $data[$f];
                 }
@@ -107,7 +108,7 @@ class RequestController extends Controller
     // helper getters so validation and view share the same lists
     private function backends()
     {
-        return ['gamevault','juwa','pandamaster','ultrapanda','orionstars','gameroom','vblink','milkyway','firekirin'];
+        return ['gamevault','juwa','pandamaster','ultrapanda','orionstars','gameroom','vblink','milkyway','firekirin', 'river'];
     }
 
     private function endpoints()
@@ -115,7 +116,7 @@ class RequestController extends Controller
         return [
             'read-account'     => ['account_id'],
             'create-account'   => [],
-            'recharge-account' => ['account_id','count'],
+            'recharge-account' => ['account_id','count', 'amount_to_deduct'],
             'withdraw-account' => ['account_id','count', 'redeem_id'],
             'freeplay-account' => ['account_id','type'],
             'reset-password' => ['account_id'],
