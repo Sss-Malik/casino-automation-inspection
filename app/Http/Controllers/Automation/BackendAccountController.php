@@ -15,6 +15,18 @@ class BackendAccountController extends Controller
         return view('automation.backend_accounts.index', compact('backendAccounts'));
     }
 
+    public function view($backendId = null) {
+        $query = BackendAccounts::with(['user', 'backendGame']);
+
+        if ($backendId) {
+            $query->where('backend_id', $backendId);
+        }
+
+        $accounts = $query->get();
+
+        return view('automation.backend_accounts.view', compact('accounts'));
+    }
+
     public function createMore($backendId) {
         $backend = BackendGames::findOrFail($backendId);
         $body = ['backend' => $backend->name];

@@ -25,9 +25,7 @@ class LoginController extends Controller
         // Only allow super-admin@admin.com
         $user = User::where('email', $data['email'])->first();
         if (
-            ! $user
-            || $user->email !== 'super-admin@admin.com'
-            || ! Hash::check($data['password'], $user->password)
+            ! $user || ! Hash::check($data['password'], $user->password)
         ) {
             return back()->withErrors([
                 'email' => 'These credentials do not match our records.'
@@ -37,11 +35,19 @@ class LoginController extends Controller
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
 
+        $token = $user->createToken('admin-login')->plainTextToken;
+
         return redirect()->intended(route('dashboard'));
     }
 
     public function logout(Request $request)
     {
+        $user = $request->user();
+
+        if ($user) {
+            $user->tokens()->delete();
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

@@ -8,6 +8,18 @@ class BackendGames extends Model
 {
     protected $table = 'backend_games';
 
+    protected $fillable = [
+        'name',
+        'backend_url',
+        'username',
+        'password',
+        'game_url',
+        'image_url',
+        'status',
+        'binding_key',
+        'accounts_creation_pd'
+    ];
+
     public function tasks() {
         return $this->hasMany(AutomationResult::class, 'backend_id');
     }

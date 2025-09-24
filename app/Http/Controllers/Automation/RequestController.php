@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Automation;
 
 use App\Http\Controllers\Controller;
+use App\Models\AutomationRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 class RequestController extends Controller
 {
@@ -12,14 +14,16 @@ class RequestController extends Controller
         // backends + endpoints for the form
         $backends = [
             'gamevault','juwa','pandamaster','ultrapanda',
-            'orionstars','gameroom','vblink','milkyway','firekirin'
+            'orionstars','gameroom','vblink','milkyway','firekirin', 'river'
         ];
         $endpoints = [
             'read-account'     => ['account_id'],
             'create-account'   => [],
-            'recharge-account' => ['account_id','count', 'order_id'],
-            'withdraw-account' => ['account_id','count'],
+            'recharge-account' => ['account_id','count', 'order_id', 'amount_to_deduct'],
+            'withdraw-account' => ['account_id','count', 'redeem_id'],
             'freeplay-account' => ['account_id','type'],
+            'reset-password' => ['account_id'],
+            'read-account-user' => ['account_id']
         ];
 
         return view('automation.requests.index', compact('backends','endpoints'));
@@ -36,7 +40,9 @@ class RequestController extends Controller
             'count'      => 'sometimes|integer|min:1',
             'type'       => 'sometimes|string',
             'repeat'     => 'required|integer|min:1',
-            'order_id' => 'sometimes|string'
+            'order_id' => 'sometimes|string',
+            'redeem_id' => 'sometimes',
+            'amount_to_deduct' => 'sometimes'
         ]);
 
         $apiBase = config('services.casino_automation.base_url');
@@ -46,7 +52,7 @@ class RequestController extends Controller
         for ($i = 0; $i < $data['repeat']; $i++) {
             // build JSON payload
             $body = ['backend' => $data['backend']];
-            foreach (['account_id','count','type'] as $f) {
+            foreach (['account_id','count','type', 'redeem_id', 'amount_to_deduct'] as $f) {
                 if (!empty($data[$f])) {
                     $body[$f] = $data[$f];
                 }
@@ -60,6 +66,13 @@ class RequestController extends Controller
             if ($data['endpoint'] === 'recharge-account') {
                 $client = $client->withHeaders([
                     'x-order-id' => $request->input('order_id')
+                ]);
+            }
+
+            if (in_array($data['endpoint'], ['reset-password', 'read-account-user', 'recharge-account', 'freeplay-account'])) {
+                $token = Auth::user()->tokens()->first()->token;
+                $client->withHeaders([
+                    'token' => $token
                 ]);
             }
 
@@ -81,20 +94,33 @@ class RequestController extends Controller
         return back()->with('responses', $responses);
     }
 
+
+    public function view(Request $request)
+    {
+        $requests = AutomationRequest::with('result.backend')
+            ->latest('created_at')
+            ->get();
+
+        return view('automation.requests.view', compact('requests'));
+    }
+
+
     // helper getters so validation and view share the same lists
     private function backends()
     {
-        return ['gamevault','juwa','pandamaster','ultrapanda','orionstars','gameroom','vblink','milkyway','firekirin'];
+        return ['gamevault','juwa','pandamaster','ultrapanda','orionstars','gameroom','vblink','milkyway','firekirin', 'river'];
     }
 
     private function endpoints()
     {
         return [
             'read-account'     => ['account_id'],
-            'create-account'   => [],                          // no extra fields
-            'recharge-account' => ['account_id','count', 'order_id'],
-            'withdraw-account' => ['account_id','count'],
+            'create-account'   => [],
+            'recharge-account' => ['account_id','count', 'amount_to_deduct'],
+            'withdraw-account' => ['account_id','count', 'redeem_id'],
             'freeplay-account' => ['account_id','type'],
+            'reset-password' => ['account_id'],
+            'read-account-user' => ['account_id']
         ];
     }
 }

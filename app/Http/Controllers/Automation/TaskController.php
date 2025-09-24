@@ -10,9 +10,8 @@ use Illuminate\Http\Request;
 class TaskController extends Controller
 {
     public function index() {
-        $tasks = AutomationResult::with('backend')->get()
-            ->sortByDesc('created_at');
+        $tasks = AutomationResult::with('backend', 'logs')->orderByDesc('created_at')
+        ->get();
         return view('automation.task.index', compact('tasks'));
-
     }
 }

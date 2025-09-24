@@ -6,7 +6,7 @@
     <div class="row mb-4 mt-5">
         {{-- Summary cards --}}
         <div class="col-md-3">
-            <div class="card custom-card text-center p-3">
+            <div class="card custom-card text-center bg-pink p-3">
                 <h6>Total Backends</h6>
                 <h2>
                     {{-- count distinct backend games --}}
@@ -15,19 +15,19 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card custom-card text-center p-3">
+            <div class="card custom-card text-center bg-secondary p-3">
                 <h6>Total Accounts</h6>
                 <h2>{{ $backendAccounts->count() }}</h2>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card custom-card text-center p-3 text-white">
+            <div class="card custom-card text-center p-3 bg-success-gradient text-white">
                 <h6>Assigned Accounts</h6>
                 <h2>{{ $backendAccounts->whereNotNull('user_id')->count() }}</h2>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card custom-card text-center p-3 bg-warning-transparent text-white">
+            <div class="card custom-card text-center p-3 bg-primary text-white">
                 <h6>Unassigned Accounts</h6>
                 <h2>{{ $backendAccounts->whereNull('user_id')->count() }}</h2>
             </div>
@@ -39,7 +39,9 @@
         <div class="col-12">
             <div class="card custom-card">
                 <div class="card-header">
-                    <h5>Backend Account Stats</h5>
+                    <div class="card-title">
+                        Backend Account Stats
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-striped mb-0">
@@ -71,6 +73,12 @@
                                         class="btn btn-sm btn-primary"
                                     >
                                         Create more
+                                    </a>
+                                    <a
+                                        href="{{ route('backend.accounts.view', ['backendId' => $backend->id]) }}"
+                                        class="btn btn-sm btn-secondary"
+                                    >
+                                        View
                                     </a>
                                 </td>
                             </tr>

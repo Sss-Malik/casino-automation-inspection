@@ -8,6 +8,15 @@ class BackendAccounts extends Model
 {
     protected $table = 'backend_accounts';
 
+    protected $fillable = [
+        'game_id',
+        'user_id',
+        'backend_id',
+        'username',
+        'password',
+        'is_assigned'
+    ];
+
     public function user() {
         return $this->belongsTo(User::class, 'user_id');
     }
