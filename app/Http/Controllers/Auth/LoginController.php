@@ -25,9 +25,7 @@ class LoginController extends Controller
         // Only allow super-admin@admin.com
         $user = User::where('email', $data['email'])->first();
         if (
-            ! $user
-            || $user->email !== 'admin@socialslots.games'
-            || ! Hash::check($data['password'], $user->password)
+            ! $user || ! Hash::check($data['password'], $user->password)
         ) {
             return back()->withErrors([
                 'email' => 'These credentials do not match our records.'
