@@ -69,7 +69,11 @@
                                     <td>{{ $log->description }}</td>
                                     <td>{{ $log->source_url }}</td>
                                     <td>{{ $log->backend->name }}</td>
-                                    <td>{{ $log->created_at->timezone('Asia/Karachi')->format('F j, Y g:i A') }}</td>
+                                    <td>
+                                        {{ app()->environment('local')
+                                            ? $task->updated_at->timezone('Asia/Karachi')->format('F j, Y g:i A')
+                                            : $task->updated_at->format('F j, Y g:i A') }}
+                                    </td>
                                 </tr>
                             @endforeach
                             </tbody>

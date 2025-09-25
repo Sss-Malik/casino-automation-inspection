@@ -100,8 +100,16 @@
                                         </code>
                                     </td>
 
-                                    <td>{{ optional($req->created_at)->timezone('Asia/Karachi')->format('F j, Y g:i A') }}</td>
-                                    <td>{{ optional($req->updated_at)->timezone('Asia/Karachi')->format('F j, Y g:i A') }}</td>
+                                    <td>
+                                        {{ app()->environment('local')
+                                            ? $req->created_at->timezone('Asia/Karachi')->format('F j, Y g:i A')
+                                            : $req->created_at->format('F j, Y g:i A') }}
+                                    </td>
+                                    <td>
+                                        {{ app()->environment('local')
+                                            ? $req->updated_at->timezone('Asia/Karachi')->format('F j, Y g:i A')
+                                            : $req->updated_at->format('F j, Y g:i A') }}
+                                    </td>
                                 </tr>
                             @endforeach
                             </tbody>
