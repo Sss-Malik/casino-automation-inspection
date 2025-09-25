@@ -63,6 +63,7 @@
                                 <th>Backend</th>
                                 <th>Order ID</th>
                                 <th>Screenshot</th>
+                                <th>Created</th>
                                 <th>Updated</th>
                                 <th>Action</th>
                             </tr>
@@ -96,7 +97,16 @@
                                             N/A
                                         @endif
                                     </td>
-                                    <td>{{ $task->updated_at->timezone('Asia/Karachi')->format('F j, Y g:i A') }}</td>
+                                    <td>
+                                        {{ app()->environment('local')
+                                            ? $task->created_at->timezone('Asia/Karachi')->format('F j, Y g:i A')
+                                            : $task->created_at->format('F j, Y g:i A') }}
+                                    </td>
+                                    <td>
+                                        {{ app()->environment('local')
+                                            ? $task->updated_at->timezone('Asia/Karachi')->format('F j, Y g:i A')
+                                            : $task->updated_at->format('F j, Y g:i A') }}
+                                    </td>
                                     <td>
                                         <a href="{{ route('logs.index', ['taskId' => $task->task_id]) }}">
                                             <button class="btn btn-sm btn-primary">
