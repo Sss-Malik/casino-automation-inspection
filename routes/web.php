@@ -6,7 +6,7 @@ use App\Http\Controllers\Automation\LogsController;
 use App\Http\Controllers\Automation\RequestController;
 use App\Http\Controllers\Automation\TaskController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\DashboardController;
 
 Route::redirect('/', '/dashboard');
 
@@ -18,9 +18,7 @@ Route::post('/login', [LoginController::class, 'login']);
 
 
 Route::group(['middleware' => 'auth'], function () {
-    Route::get('dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
     Route::get('logs/{taskId?}', [LogsController::class, 'index'])->name('logs.index');
