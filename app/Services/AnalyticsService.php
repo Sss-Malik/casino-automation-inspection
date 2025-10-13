@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AutomationResult;
 use App\Models\BackendGames;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -59,5 +60,20 @@ class AnalyticsService
             ->orderBy('req.type')
             ->get();
     }
+
+    public function backendRequestDurationByType()
+    {
+        return AutomationResult::join('automation_requests', 'automation_requests.task_id', '=', 'automation_results.task_id')
+            ->join('backend_games', 'backend_games.id', '=', 'automation_results.backend_id')
+            ->select(
+                'backend_games.name as game_name',
+                'automation_requests.type',
+                DB::raw('ROUND(AVG(automation_results.duration_seconds), 2) as avg_duration')
+            )
+            ->groupBy('backend_games.name', 'automation_requests.type')
+            ->orderBy('backend_games.name')
+            ->get();
+    }
+
 
 }

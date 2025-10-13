@@ -18,6 +18,7 @@ class DashboardController extends Controller
 
         $backends = $this->analyticsService->backendRequestAnalytics();
         $statusAnalytics = $this->analyticsService->backendRequestStatusAnalytics();
-        return view('dashboard' , compact('backends', 'statusAnalytics'));
+        $backendDurationType   = $this->analyticsService->backendRequestDurationByType();
+        return view('dashboard' , compact('backends', 'statusAnalytics', 'backendDurationType'));
     }
 }
