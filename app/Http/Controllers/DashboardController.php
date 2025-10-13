@@ -17,6 +17,7 @@ class DashboardController extends Controller
     public function index() {
 
         $backends = $this->analyticsService->backendRequestAnalytics();
-        return view('dashboard' , compact('backends'));
+        $statusAnalytics = $this->analyticsService->backendRequestStatusAnalytics();
+        return view('dashboard' , compact('backends', 'statusAnalytics'));
     }
 }

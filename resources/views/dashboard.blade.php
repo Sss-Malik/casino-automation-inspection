@@ -331,7 +331,7 @@
                 <div class="col-xl-12">
                     <div class="card custom-card">
                         <div class="card-header justify-content-between">
-                            <div class="card-title">Sessions Duration By New Users</div>
+                            <div class="card-title">Request Status Analytics</div>
                             <div class="dropdown">
                                 <a href="javascript:void(0);" class="p-2 fs-12 text-muted" data-bs-toggle="dropdown">
                                     View All<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
@@ -344,7 +344,7 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <div id="session-users"></div>
+                            <div id="requestStatusAnalytics"></div>
                         </div>
                     </div>
                 </div>
@@ -745,17 +745,6 @@
 @endsection
 
 @pushonce('scripts')
-    <!-- HTML -->
-    <div class="card">
-        <div class="card-header">
-            <h5 class="card-title mb-0">Backend Request Analytics</h5>
-            <small class="text-muted">Distribution of request types per backend game</small>
-        </div>
-        <div class="card-body">
-            <div id="backendRequestAnalytics" style="height: 420px;"></div>
-        </div>
-    </div>
-
     <!-- ApexCharts -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -861,7 +850,70 @@
             // Backend Request Analytics chart end //
 
 
+            // Request Status Analytics chart start //
+            // 1️⃣  Data from controller
+            const statusData = @json($statusAnalytics);
 
+            // 2️⃣  Extract labels and data series
+            const labels2 = statusData.map(i => i.type);
+
+            const series2 = [
+                { name: 'Success', data: statusData.map(i => i.success_count) },
+                { name: 'Failed',  data: statusData.map(i => i.failed_count) },
+                { name: 'Pending', data: statusData.map(i => i.pending_count) }
+            ];
+
+            // 3️⃣  Chart configuration
+            const options2 = {
+                series: series2,
+                chart: {
+                    type: 'bar',
+                    height: 400,
+                    stacked: true,
+                    stackType: '100%',
+                    toolbar: { show: true }
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: true,
+                        borderRadius: 4,
+                    }
+                },
+                dataLabels: { enabled: false },
+                stroke: {
+                    width: 1,
+                    colors: ['#fff']
+                },
+                xaxis: {
+                    categories: labels2,
+                    title: { text: 'Percentage of Requests' }
+                },
+                yaxis: {
+                    title: { text: 'Request Types' }
+                },
+                fill: { opacity: 1 },
+                legend: {
+                    position: 'top',
+                    horizontalAlign: 'center'
+                },
+                colors: [
+                    '#28a745', // success
+                    '#dc3545', // failed
+                    '#ffc107'  // pending
+                ],
+                tooltip: {
+                    shared: false,
+                    y: { formatter: val => val + ' requests' }
+                },
+                grid: {
+                    borderColor: '#f1f1f1',
+                    strokeDashArray: 3
+                }
+            };
+
+            // 4️⃣  Render chart
+            new ApexCharts(document.querySelector("#requestStatusAnalytics"), options2).render();
+            // Request Status Analytics chart end //
 
         });
     </script>
