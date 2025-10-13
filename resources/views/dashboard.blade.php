@@ -59,14 +59,11 @@
                     <div class="card custom-card">
                         <div class="card-header justify-content-between">
                             <div class="card-title">
-                                Audience Report
-                            </div>
-                            <div>
-                                <button type="button" class="btn btn-primary-light btn-wave"><i class="ri-share-forward-line me-1 align-middle d-inline-block"></i>Export</button>
+                                Backend Requests Report
                             </div>
                         </div>
                         <div class="card-body">
-                            <div id="audienceReport"></div>
+                            <div id="backendRequestAnalytics"></div>
                         </div>
                     </div>
                 </div>
@@ -748,6 +745,125 @@
 @endsection
 
 @pushonce('scripts')
-    <script src="{{ asset('dist/assets/js/analytics-dashboard.js') }}"></script>
-    <script src="{{ asset('dist/assets/js/custom.js') }}"></script>
+    <!-- HTML -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Backend Request Analytics</h5>
+            <small class="text-muted">Distribution of request types per backend game</small>
+        </div>
+        <div class="card-body">
+            <div id="backendRequestAnalytics" style="height: 420px;"></div>
+        </div>
+    </div>
+
+    <!-- ApexCharts -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Backend Request Analytics chart start //
+            // ====== 1️⃣ Pass PHP data to JS ======
+            const backendData = @json($backends);
+
+            // ====== 2️⃣ Prepare chart labels ======
+            const labels = backendData.map(item => item.game_name);
+
+            // ====== 3️⃣ Build series for each request type ======
+            const series = [
+                {
+                    name: 'Freeplay',
+                    data: backendData.map(item => item.freeplay_count)
+                },
+                {
+                    name: 'Recharge',
+                    data: backendData.map(item => item.recharge_count)
+                },
+                {
+                    name: 'Create',
+                    data: backendData.map(item => item.create_count)
+                },
+                {
+                    name: 'Read',
+                    data: backendData.map(item => item.read_count)
+                },
+                {
+                    name: 'Reset Password',
+                    data: backendData.map(item => item.reset_password_count)
+                },
+                {
+                    name: 'Withdraw',
+                    data: backendData.map(item => item.withdraw_count)
+                }
+            ];
+
+            // ====== 4️⃣ Chart options ======
+            const options = {
+                series: series,
+                chart: {
+                    type: 'bar',
+                    height: 420,
+                    stacked: true,
+                    toolbar: { show: true },
+                    zoom: { enabled: true }
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        borderRadius: 4,
+                        columnWidth: '45%',
+                    },
+                },
+                dataLabels: { enabled: false },
+                stroke: {
+                    show: true,
+                    width: 2,
+                    colors: ['transparent']
+                },
+                xaxis: {
+                    categories: labels,
+                    title: { text: 'Games' },
+                    labels: { rotate: -25, trim: true }
+                },
+                yaxis: {
+                    title: { text: 'Number of Requests' },
+                },
+                fill: {
+                    opacity: 1
+                },
+                legend: {
+                    position: 'top',
+                    horizontalAlign: 'center',
+                    fontSize: '13px',
+                    markers: {
+                        radius: 12
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: val => val + " requests"
+                    }
+                },
+                grid: {
+                    borderColor: '#f1f1f1',
+                    strokeDashArray: 3
+                },
+                colors: [
+                    '#845ADF', // freeplay
+                    '#23b7e5', // recharge
+                    '#28a745', // create
+                    '#17a2b8', // read
+                    '#dc3545', // reset-password
+                    '#ffb22b'  // withdraw
+                ]
+            };
+
+            // ====== 5️⃣ Render chart ======
+            const chart = new ApexCharts(document.querySelector("#backendRequestAnalytics"), options);
+            chart.render();
+            // Backend Request Analytics chart end //
+
+
+
+
+        });
+    </script>
+
 @endpushonce

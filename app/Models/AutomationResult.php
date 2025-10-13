@@ -15,6 +15,7 @@ class AutomationResult extends Model
         'backend_id',
         'order_id',
         'screenshot_url',
+        'duration_seconds'
     ];
 
     protected $casts = [

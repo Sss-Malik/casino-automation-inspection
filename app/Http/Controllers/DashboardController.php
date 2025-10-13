@@ -2,11 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\AnalyticsService;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    protected $analyticsService;
+
+    public function __construct(AnalyticsService $analyticsService) {
+        $this->analyticsService = $analyticsService;
+    }
+
+
     public function index() {
-        return view('dashboard');
+
+        $backends = $this->analyticsService->backendRequestAnalytics();
+        return view('dashboard' , compact('backends'));
     }
 }
