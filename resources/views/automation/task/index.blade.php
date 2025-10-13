@@ -73,7 +73,15 @@
                                 <tr>
                                     <td>{{ $task->id }}</td>
                                     <td>{{ $task->user_id ?? 'N/A' }}</td>
-                                    <td>{{ $task->description }}</td>
+                                    <td>
+                                        <span class="desc-tooltip"
+                                              data-bs-toggle="tooltip"
+                                              data-bs-html="true"
+                                              title="{!! nl2br(e($task->description)) !!}">
+                                            {{ \Illuminate\Support\Str::limit($task->description, 40) }}
+                                        </span>
+                                    </td>
+
                                     <td>{{ $task->task_id }}</td>
                                     <td><span class="badge {{ $statusClass[$task->status] }} text-white fs-10">{{ $task->status }}</span></td>
                                     <td>{{ $task->duration_seconds }}</td>
