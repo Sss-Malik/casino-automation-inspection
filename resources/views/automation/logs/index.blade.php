@@ -66,7 +66,14 @@
                                 <tr>
                                     <td>{{ $log->id }}</td>
                                     <td><span class="badge {{ $statusClass[$log->type] }} fs-10">{{ $log->type }}</span></td>
-                                    <td>{{ $log->description }}</td>
+                                    <td>
+                                        <span class="desc-tooltip"
+                                              data-bs-toggle="tooltip"
+                                              data-bs-html="true"
+                                              title="{!! nl2br(e($log->description)) !!}">
+                                            {{ \Illuminate\Support\Str::limit($log->description, 40) }}
+                                        </span>
+                                    </td>
                                     <td>{{ $log->source_url }}</td>
                                     <td>{{ $log->backend->name }}</td>
                                     <td>

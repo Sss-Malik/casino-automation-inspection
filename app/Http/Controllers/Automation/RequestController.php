@@ -21,7 +21,7 @@ class RequestController extends Controller
             'create-account'   => [],
             'recharge-account' => ['account_id','count', 'order_id', 'amount_to_deduct'],
             'withdraw-account' => ['account_id','count', 'redeem_id'],
-            'freeplay-account' => ['account_id','type'],
+            'freeplay-account' => ['account_id','type', 'freeplay_id'],
             'reset-password' => ['account_id'],
             'read-account-user' => ['account_id']
         ];
@@ -42,7 +42,8 @@ class RequestController extends Controller
             'repeat'     => 'required|integer|min:1',
             'order_id' => 'sometimes|string',
             'redeem_id' => 'sometimes',
-            'amount_to_deduct' => 'sometimes'
+            'amount_to_deduct' => 'sometimes',
+            'freeplay_id' => 'sometimes'
         ]);
 
         $apiBase = config('services.casino_automation.base_url');
@@ -118,7 +119,7 @@ class RequestController extends Controller
             'create-account'   => [],
             'recharge-account' => ['account_id','count', 'amount_to_deduct'],
             'withdraw-account' => ['account_id','count', 'redeem_id'],
-            'freeplay-account' => ['account_id','type'],
+            'freeplay-account' => ['account_id','type', 'freeplay_id'],
             'reset-password' => ['account_id'],
             'read-account-user' => ['account_id']
         ];
