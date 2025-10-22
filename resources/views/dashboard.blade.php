@@ -104,7 +104,7 @@
                 },
                 {
                     name: 'Reset Password',
-                    data: backendData.map(item => item.reset_password_count)
+                    data: backendData.map(item => item['reset-password_count'])
                 },
                 {
                     name: 'Withdraw',
