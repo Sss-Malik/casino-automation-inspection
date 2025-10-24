@@ -53,7 +53,7 @@
 
     <!-- Start::row-2 -->
     <div class="row mt-4">
-        <div class="col-xl-12">
+        <div class="col-xl-6">
             <div class="card custom-card">
                 <div class="card-header justify-content-between">
                     <div class="card-title">
@@ -62,6 +62,18 @@
                 </div>
                 <div class="card-body">
                     <div id="backendDurationByType" style="height: 500px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card custom-card">
+                <div class="card-header justify-content-between">
+                    <div class="card-title">
+                        Finished Transactions by Provider
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="providerChart" style="height: 500px;"></div>
                 </div>
             </div>
         </div>
@@ -313,6 +325,99 @@
             new ApexCharts(document.querySelector("#backendDurationByType"), options4).render();
 
             // Backend duration by request type end //
+
+            // Provider analytics start //
+            var providersData = @json($providerAnalytics);
+            const options5 = {
+                chart: {
+                    height: 500,
+                    type: 'bar',
+                    toolbar: { show: false }
+                },
+                plotOptions: {
+                    bar: {
+                        borderRadius: 6,
+                        horizontal: false,
+                        columnWidth: '50%',
+                    }
+                },
+                dataLabels: {
+                    enabled: true,
+                    formatter: (val, opts) => {
+                        const seriesIndex = opts.seriesIndex;
+                        return seriesIndex === 0
+                            ? val.toLocaleString() + ' ($)'
+                            : val.toLocaleString() + ' txns';
+                    },
+                    style: {
+                        fontSize: '12px',
+                        colors: ['#fff']
+                    }
+                },
+                stroke: {
+                    show: true,
+                    width: 2,
+                    colors: ['transparent']
+                },
+                series: [
+                    {
+                        name: 'Total Amount ($)',
+                        data: providersData.map(item => item.total_amount)
+                    },
+                    {
+                        name: 'Transaction Count',
+                        data: providersData.map(item => item.total_transactions)
+                    }
+                ],
+                xaxis: {
+                    categories: providersData.map(item => item.provider),
+                    title: { text: 'Provider' },
+                    labels: {
+                        style: {
+                            colors: '#6c757d',
+                            fontSize: '13px'
+                        }
+                    }
+                },
+                yaxis: [
+                    {
+                        title: {
+                            text: 'Total Amount (Minor Units)'
+                        },
+                        labels: {
+                            formatter: val => val.toLocaleString()
+                        }
+                    },
+                    {
+                        opposite: true,
+                        title: {
+                            text: 'Transaction Count'
+                        },
+                        labels: {
+                            formatter: val => val.toLocaleString()
+                        }
+                    }
+                ],
+                colors: ['#3B82F6', '#10B981'],
+                tooltip: {
+                    shared: true,
+                    intersect: false,
+                    y: {
+                        formatter: val => val.toLocaleString()
+                    }
+                },
+                legend: {
+                    position: 'top'
+                },
+                grid: {
+                    borderColor: '#e0e6ed',
+                    strokeDashArray: 4
+                }
+            };
+
+            new ApexCharts(document.querySelector("#providerChart"), options5).render();
+
+            // Provider analytics end //
 
         });
     </script>

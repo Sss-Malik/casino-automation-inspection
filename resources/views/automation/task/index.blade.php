@@ -155,7 +155,7 @@
             // Backend filter
             $('#backendFilter').on('change', function () {
                 const value = $(this).val();
-                table.column(6).search(value).draw(); // 6th index = Backend column
+                table.column(7).search(value).draw(); // 6th index = Backend column
             });
         });
     </script>
