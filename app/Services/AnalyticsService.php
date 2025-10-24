@@ -75,5 +75,21 @@ class AnalyticsService
             ->get();
     }
 
+    public function providerAnalytics()
+    {
+        // Fetch sum of finished transactions grouped by provider
+        return DB::table('wallet_detail')
+            ->select(
+                'provider',
+                DB::raw('SUM(amount_minor) as total_amount'),
+                DB::raw('COUNT(*) as total_transactions')
+            )
+            ->where('status', 'finished')
+            ->where('type', 'DEPOSIT')
+            ->groupBy('provider')
+            ->get();
+
+    }
+
 
 }
