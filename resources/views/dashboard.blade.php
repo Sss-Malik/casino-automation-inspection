@@ -370,7 +370,7 @@
                     }
                 ],
                 xaxis: {
-                    categories: providersData.map(item => item.provider),
+                    categories: providersData.map(item => item.provider ?? 'N/A'),
                     title: { text: 'Provider' },
                     labels: {
                         style: {
