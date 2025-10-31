@@ -80,6 +80,22 @@
     </div>
     <!-- End::row-2 -->
 
+
+    <div class="row mt-4">
+        <div class="col-xl-6">
+            <div class="card custom-card">
+                <div class="card-header justify-content-between">
+                    <div class="card-title">
+                        Request Frequency
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="frequencyChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @section('js')
@@ -418,6 +434,26 @@
             new ApexCharts(document.querySelector("#providerChart"), options5).render();
 
             // Provider analytics end //
+
+
+            // frequency analytics start //
+
+            const frequencyData = @json($frequencyAnalytics);
+            new ApexCharts(document.querySelector("#frequencyChart"), {
+                chart: { type: 'line', height: 300 },
+                series: [{
+                    name: 'Tasks Created',
+                    data: frequencyData.map(row => row.count)
+                }],
+                xaxis: {
+                    categories: frequencyData.map(row => row.date),
+                    title: { text: 'Date' }
+                },
+                yaxis: { title: { text: 'Tasks Count' } },
+                title: { text: 'Task Frequency Over Time' }
+            }).render();
+
+            // frequency analytics end //
 
         });
     </script>
