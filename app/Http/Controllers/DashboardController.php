@@ -21,6 +21,8 @@ class DashboardController extends Controller
         $backendDurationType   = $this->analyticsService->backendRequestDurationByType();
         $providerAnalytics = $this->analyticsService->providerAnalytics();
         $frequencyAnalytics = $this->analyticsService->frequencyAnalytics();
-        return view('dashboard' , compact('backends', 'statusAnalytics', 'backendDurationType', 'providerAnalytics', 'frequencyAnalytics'));
+        $concurrencyAnalytics = $this->analyticsService->concurrencyAnalytics();
+        $statusFrequency = $this->analyticsService->statusAnalytics();
+        return view('dashboard' , compact('backends', 'statusAnalytics', 'backendDurationType', 'providerAnalytics', 'frequencyAnalytics', 'concurrencyAnalytics', 'statusFrequency'));
     }
 }

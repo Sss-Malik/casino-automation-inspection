@@ -103,5 +103,22 @@ class AnalyticsService
             ->get();
     }
 
+    public function concurrencyAnalytics() {
+        return DB::table('automation_results')
+            ->select(
+                DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') as minute"),
+                DB::raw("COUNT(*) as concurrent_count")
+            )
+            ->groupBy('minute')
+            ->orderBy('minute', 'asc')
+            ->get();
+    }
+
+    public function statusAnalytics() {
+        return DB::table('automation_results')->select('status', DB::raw('COUNT(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status');
+    }
+
 
 }
