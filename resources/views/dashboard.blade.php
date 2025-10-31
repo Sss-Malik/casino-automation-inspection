@@ -94,7 +94,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-6">
+        <div class="col-xl-3">
             <div class="card custom-card">
                 <div class="card-header justify-content-between">
                     <div class="card-title">
