@@ -98,18 +98,6 @@
             <div class="card custom-card">
                 <div class="card-header justify-content-between">
                     <div class="card-title">
-                        Concurrency
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div id="concurrencyChart"></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-6">
-            <div class="card custom-card">
-                <div class="card-header justify-content-between">
-                    <div class="card-title">
                         Status
                     </div>
                 </div>
