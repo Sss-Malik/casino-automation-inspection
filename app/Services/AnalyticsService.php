@@ -86,6 +86,7 @@ class AnalyticsService
             )
             ->where('status', 'finished')
             ->where('type', 'DEPOSIT')
+            ->whereIn('provider', ['stripe', 'paypal', 'chime', 'nowpayments', 'speed'])
             ->groupBy('provider')
             ->get();
 
