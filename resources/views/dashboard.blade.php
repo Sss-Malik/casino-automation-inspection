@@ -94,6 +94,30 @@
                 </div>
             </div>
         </div>
+        <div class="col-xl-6">
+            <div class="card custom-card">
+                <div class="card-header justify-content-between">
+                    <div class="card-title">
+                        Concurrency
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="concurrencyChart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6">
+            <div class="card custom-card">
+                <div class="card-header justify-content-between">
+                    <div class="card-title">
+                        Status
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="statusChart"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
 @endsection
@@ -454,6 +478,37 @@
             }).render();
 
             // frequency analytics end //
+
+            // concurrency analytics start //
+            const concurrencyData = @json($concurrencyAnalytics);
+            new ApexCharts(document.querySelector("#concurrencyChart"), {
+                chart: { type: 'area', height: 300 },
+                series: [{
+                    name: 'Concurrent Tasks',
+                    data: concurrencyData.map(row => row.concurrent_count)
+                }],
+                xaxis: {
+                    categories: concurrencyData.map(row => row.minute),
+                    title: { text: 'Time (minute)' }
+                },
+                yaxis: { title: { text: 'Count' } },
+                title: { text: 'Task Concurrency (per minute)' }
+            }).render();
+
+            // concurrency analytics end //
+
+            // status frequency start //
+            const statusFrequencyData = @json($statusFrequency);
+
+            new ApexCharts(document.querySelector("#statusChart"), {
+                chart: { type: 'donut', height: 300 },
+                series: Object.values(statusFrequencyData),
+                labels: Object.keys(statusFrequencyData),
+                title: { text: 'Status Distribution' },
+                legend: { position: 'bottom' }
+            }).render();
+
+            // status frequency end //
 
         });
     </script>
