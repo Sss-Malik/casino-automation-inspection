@@ -479,23 +479,6 @@
 
             // frequency analytics end //
 
-            // concurrency analytics start //
-            const concurrencyData = @json($concurrencyAnalytics);
-            new ApexCharts(document.querySelector("#concurrencyChart"), {
-                chart: { type: 'area', height: 300 },
-                series: [{
-                    name: 'Concurrent Tasks',
-                    data: concurrencyData.map(row => row.concurrent_count)
-                }],
-                xaxis: {
-                    categories: concurrencyData.map(row => row.minute),
-                    title: { text: 'Time (minute)' }
-                },
-                yaxis: { title: { text: 'Count' } },
-                title: { text: 'Task Concurrency (per minute)' }
-            }).render();
-
-            // concurrency analytics end //
 
             // status frequency start //
             const statusFrequencyData = @json($statusFrequency);
