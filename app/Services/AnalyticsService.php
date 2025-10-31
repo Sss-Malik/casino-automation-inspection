@@ -92,5 +92,16 @@ class AnalyticsService
 
     }
 
+    public function frequencyAnalytics() {
+        return DB::table('automation_results')
+            ->select(
+            DB::raw("DATE(created_at) as date"),
+            DB::raw("COUNT(*) as count")
+        )
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
+    }
+
 
 }
