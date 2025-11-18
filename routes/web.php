@@ -21,11 +21,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
+    Route::get('tasks/data', [TaskController::class, 'data'])->name('tasks.data');
     Route::get('logs/{taskId?}', [LogsController::class, 'index'])->name('logs.index');
 
-    Route::get('requests/make', [RequestController::class, 'index'])->name('request.index');
-    Route::get('requests/view', [RequestController::class, 'view'])->name('request.view');
-    Route::post('requests/send', [RequestController::class, 'send'])->name('request.send');
+    Route::prefix('requests')->group(function () {
+        Route::get('make', [RequestController::class, 'index'])->name('request.index');
+        Route::get('view', [RequestController::class, 'view'])->name('request.view');
+        Route::get('data', [RequestController::class, 'data'])->name('request.data');
+        Route::post('send', [RequestController::class, 'send'])->name('request.send');
+    });
 
     Route::get('backend/accounts/stats', [BackendAccountController::class, 'index'])->name('backend.accounts.stats');
     Route::get('backend/accounts/view', [BackendAccountController::class, 'view'])->name('backend.accounts.view.all');

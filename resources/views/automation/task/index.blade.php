@@ -68,63 +68,6 @@
                                 <th>Action</th>
                             </tr>
                             </thead>
-                            <tbody>
-                            @foreach($tasks as $task)
-                                <tr>
-                                    <td>{{ $task->id }}</td>
-                                    <td>{{ $task->user_id ?? 'N/A' }}</td>
-                                    <td>
-                                        <span class="desc-tooltip"
-                                              data-bs-toggle="tooltip"
-                                              data-bs-html="true"
-                                              title="{!! nl2br(e($task->description)) !!}">
-                                            {{ \Illuminate\Support\Str::limit($task->description, 40) }}
-                                        </span>
-                                    </td>
-
-                                    <td>{{ $task->task_id }}</td>
-                                    <td><span class="badge {{ $statusClass[$task->status] }} text-white fs-10">{{ $task->status }}</span></td>
-                                    <td>{{ $task->duration_seconds }}</td>
-                                    <td>
-                                        @if(!empty($task->data))
-                                            <ul>
-                                                @foreach ($task->data as $key => $value)
-                                                    <li>{{ $key }}: {{ $value }}</li>
-                                                @endforeach
-                                            </ul>
-                                        @else
-                                            N/A
-                                        @endif
-                                    </td>
-                                    <td>{{ $task->backend->name }}</td>
-                                    <td>{{ $task->order_id ?? 'N/A' }}</td>
-                                    <td>
-                                        @if (!empty($task->screenshot_url))
-                                            <a class="text-indigo" href="{{ $task->screenshot_url }}" target="_blank" rel="noopener noreferrer">View</a>
-                                        @else
-                                            N/A
-                                        @endif
-                                    </td>
-                                    <td>
-                                        {{ app()->environment('local')
-                                            ? $task->created_at->timezone('Asia/Karachi')->format('F j, Y g:i A')
-                                            : $task->created_at->format('F j, Y g:i A') }}
-                                    </td>
-                                    <td>
-                                        {{ app()->environment('local')
-                                            ? $task->updated_at->timezone('Asia/Karachi')->format('F j, Y g:i A')
-                                            : $task->updated_at->format('F j, Y g:i A') }}
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('logs.index', ['taskId' => $task->task_id]) }}">
-                                            <button class="btn btn-sm btn-primary">
-                                                View logs
-                                            </button>
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -138,25 +81,41 @@
     <script>
         $(document).ready(function () {
             const table = $('#datatable-basic').DataTable({
-                language: {
-                    searchPlaceholder: 'Search...',
-                    sSearch: '',
-                },
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('tasks.data') }}",
                 pageLength: 10,
-                ordering: false
+                ordering: false,
+                columns: [
+                    { data: 'id' },
+                    { data: 'user_id' },
+                    { data: 'description' },
+                    { data: 'task_id' },
+                    { data: 'status' },
+                    { data: 'duration_seconds' },
+                    { data: 'data_rendered', orderable: false, searchable: false },
+                    { data: 'backend' },
+                    { data: 'order_id' },
+                    { data: 'screenshot' },
+                    { data: 'created_at' },
+                    { data: 'updated_at' },
+                    { data: 'action', orderable: false, searchable: false }
+                ]
             });
 
-            // Status filter
+            // Filters
             $('#statusFilter').on('change', function () {
-                const value = $(this).val();
-                table.column(4).search(value).draw(); // 4th index = Status column
+                table.column(4).search($(this).val()).draw();
             });
 
-            // Backend filter
             $('#backendFilter').on('change', function () {
-                const value = $(this).val();
-                table.column(7).search(value).draw(); // 6th index = Backend column
+                table.column(7).search($(this).val()).draw();
             });
+
+            $('#datatable-basic').on('draw.dt', function () {
+                $('[data-bs-toggle="tooltip"]').tooltip();
+            });
+
         });
     </script>
 

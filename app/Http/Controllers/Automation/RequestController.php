@@ -7,8 +7,17 @@ use App\Models\AutomationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Yajra\DataTables\Facades\DataTables;
+
 class RequestController extends Controller
 {
+
+    protected $statusMap = [
+        'pending' => 'bg-warning',
+        'success' => 'bg-success',
+        'failed'  => 'bg-danger',
+    ];
+
     public function index()
     {
         // backends + endpoints for the form
@@ -98,11 +107,46 @@ class RequestController extends Controller
 
     public function view(Request $request)
     {
-        $requests = AutomationRequest::with('result.backend')
-            ->latest('created_at')
-            ->get();
+        return view('automation.requests.view');
+    }
 
-        return view('automation.requests.view', compact('requests'));
+    public function data(Request $request)
+    {
+        $query = AutomationRequest::with('result.backend')->latest('created_at');
+
+        return DataTables::eloquent($query)
+            ->addColumn('task_button', function ($req) {
+                return view('automation.requests.partials.task-button', compact('req'))->render();
+            })
+            ->addColumn('type_badge', function ($req) {
+                $typeClass = [
+                    'create' => 'bg-success',
+                    'update' => 'bg-info',
+                    'delete' => 'bg-danger',
+                ];
+                $class = $typeClass[$req->type] ?? 'bg-secondary';
+
+                return "<span class='badge $class text-white fs-10'>" . ucfirst($req->type) . "</span>";
+            })
+            ->addColumn('status_badge', function ($req) {
+                $code = $req->status_code;
+
+                return "<span class='badge text-white fs-10'>"
+                    . ($code ?? '—') . "</span>";
+            })
+            ->addColumn('payload_short', function ($req) {
+                return '<code class="small d-inline-block text-wrap">' .
+                    \Illuminate\Support\Str::limit(json_encode($req->payload, JSON_UNESCAPED_SLASHES), 120)
+                    . '</code>';
+            })
+            ->addColumn('created_fmt', function ($req) {
+                return app()->environment('local') ? $req->created_at->timezone('Asia/Karachi')->format('F j, Y g:i A'): $req->created_at->format('F j, Y g:i A');
+            })
+            ->addColumn('updated_fmt', function ($req) {
+                return app()->environment('local') ? $req->updated_at->timezone('Asia/Karachi')->format('F j, Y g:i A'): $req->updated_at->format('F j, Y g:i A');
+            })
+            ->rawColumns(['task_button', 'type_badge', 'status_badge', 'payload_short'])
+            ->make(true);
     }
 
 
