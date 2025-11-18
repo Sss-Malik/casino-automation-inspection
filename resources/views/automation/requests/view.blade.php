@@ -64,55 +64,6 @@
                                 <th>Updated</th>
                             </tr>
                             </thead>
-                            <tbody>
-                            @foreach($requests as $req)
-                                <tr>
-                                    <td>{{ $req->id }}</td>
-
-                                    <td class="font-monospace">
-                                        <button type="button"
-                                                class="btn btn-link p-0 view-task"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#taskModal"
-                                                data-task='@json($req->result)'
-                                                data-request-id="{{ $req->id }}"
-                                                title="View task">
-                                            {{ $req->task_id }}
-                                        </button>
-                                    </td>
-
-                                    <td>
-                                    <span class="badge {{ $typeClass[$req->type] ?? 'bg-secondary' }} text-white fs-10">
-                                        {{ ucfirst($req->type) }}
-                                    </span>
-                                    </td>
-
-                                    <td>
-                                        @php $code = $req->status_code; @endphp
-                                        <span class="badge {{ $statusCodeClass($code) }} text-white fs-10">
-                                        {{ $code ?? '—' }}
-                                    </span>
-                                    </td>
-
-                                    <td style="max-width: 380px;">
-                                        <code class="small d-inline-block text-wrap">
-                                            {{ \Illuminate\Support\Str::limit(json_encode($req->payload, JSON_UNESCAPED_SLASHES), 120) }}
-                                        </code>
-                                    </td>
-
-                                    <td>
-                                        {{ app()->environment('local')
-                                            ? $req->created_at->timezone('Asia/Karachi')->format('F j, Y g:i A')
-                                            : $req->created_at->format('F j, Y g:i A') }}
-                                    </td>
-                                    <td>
-                                        {{ app()->environment('local')
-                                            ? $req->updated_at->timezone('Asia/Karachi')->format('F j, Y g:i A')
-                                            : $req->updated_at->format('F j, Y g:i A') }}
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
                         </table>
                     </div> <!-- table-responsive -->
                 </div>
@@ -162,24 +113,36 @@
 @push('scripts')
     <script>
         $(document).ready(function () {
+
             const table = $('#datatable-requests').DataTable({
-                language: { searchPlaceholder: 'Search...', sSearch: '' },
+                processing: true,
+                serverSide: true,
+                ajax: '{{ route('request.data') }}',
+                ordering: false,
                 pageLength: 10,
-                ordering: false
+                columns: [
+                    { data: 'id', name: 'id' },
+                    { data: 'task_button', name: 'task_button', orderable: false, searchable: false },
+                    { data: 'type_badge', name: 'type', orderable: false },
+                    { data: 'status_badge', name: 'status_code', orderable: false },
+                    { data: 'payload_short', name: 'payload' },
+                    { data: 'created_fmt', name: 'created_at' },
+                    { data: 'updated_fmt', name: 'updated_at' },
+                ],
+                language: { searchPlaceholder: 'Search...', sSearch: '' }
             });
 
-            // Type filter (column index 2)
+            // Dropdown filter: Type
             $('#typeFilter').on('change', function () {
-                const val = $(this).val();          // "Create" etc.
-                table.column(2).search(val).draw(); // matches rendered text in the cell
+                table.column(2).search(this.value).draw();
             });
 
-            // Status Code filter (column index 3)
+            // Dropdown filter: Status
             $('#statusCodeFilter').on('change', function () {
-                const val = $(this).val();          // e.g. "200" or "—"
-                table.column(3).search(val).draw();
+                table.column(3).search(this.value).draw();
             });
         });
+
     </script>
 
     <script>
