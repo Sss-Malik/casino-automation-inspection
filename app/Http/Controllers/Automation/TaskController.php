@@ -32,6 +32,9 @@ class TaskController extends Controller
                     $q->where('name', 'LIKE', "%{$keyword}%");
                 });
             })
+            ->filterColumn('status', function ($query, $keyword) {
+                $query->where('status', 'LIKE', "%{$keyword}%");
+            })
             ->addColumn('backend', fn($row) => $row->backend->name)
             ->addColumn('created_at', fn($row) => app()->environment('local') ? $row->created_at->timezone('Asia/Karachi')->format('F j, Y g:i A'): $row->created_at->format('F j, Y g:i A'))
             ->addColumn('updated_at', fn($row) => app()->environment('local') ? $row->updated_at->timezone('Asia/Karachi')->format('F j, Y g:i A'): $row->updated_at->format('F j, Y g:i A'))
