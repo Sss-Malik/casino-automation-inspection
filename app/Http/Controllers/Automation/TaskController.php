@@ -18,13 +18,14 @@ class TaskController extends Controller
 
     public function index() {
         $tasks = AutomationResult::with('backend', 'logs')->orderByDesc('created_at')
+        ->limit(500)
         ->get();
         return view('automation.task.index', compact('tasks'));
     }
 
     public function data()
     {
-        $query = AutomationResult::with('backend')->orderByDesc('created_at');
+        $query = AutomationResult::with('backend')->orderByDesc('created_at')->limit(500);
 
         return DataTables::eloquent($query)
             ->filterColumn('backend', function ($query, $keyword) {
