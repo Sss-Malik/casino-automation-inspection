@@ -18,19 +18,23 @@ class TaskController extends Controller
 
     public function index() {
         $tasks = AutomationResult::with('backend', 'logs')->orderByDesc('created_at')
+        ->limit(500)
         ->get();
         return view('automation.task.index', compact('tasks'));
     }
 
     public function data()
     {
-        $query = AutomationResult::with('backend')->orderByDesc('created_at');
+        $query = AutomationResult::with('backend')->orderByDesc('created_at')->limit(500);
 
         return DataTables::eloquent($query)
             ->filterColumn('backend', function ($query, $keyword) {
                 $query->whereHas('backend', function ($q) use ($keyword) {
                     $q->where('name', 'LIKE', "%{$keyword}%");
                 });
+            })
+            ->filterColumn('status', function ($query, $keyword) {
+                $query->where('status', 'LIKE', "%{$keyword}%");
             })
             ->addColumn('backend', fn($row) => $row->backend->name)
             ->addColumn('created_at', fn($row) => app()->environment('local') ? $row->created_at->timezone('Asia/Karachi')->format('F j, Y g:i A'): $row->created_at->format('F j, Y g:i A'))
