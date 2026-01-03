@@ -6,6 +6,7 @@ use App\Models\AutomationResult;
 use App\Models\BackendGames;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AnalyticsService
 {
@@ -75,9 +76,13 @@ class AnalyticsService
             ->get();
     }
 
-    public function providerAnalytics()
+
+    public function providerAnalytics($startDate = null, $endDate = null)
     {
-        // Fetch sum of finished transactions grouped by provider
+        // Default to 'Start of Month' -> 'Today' if no dates provided
+        $start = $startDate ? Carbon::parse($startDate)->startOfDay() : Carbon::now()->startOfMonth();
+        $end   = $endDate   ? Carbon::parse($endDate)->endOfDay()   : Carbon::now()->endOfDay();
+
         return DB::table('wallet_detail')
             ->select(
                 'provider',
@@ -86,7 +91,9 @@ class AnalyticsService
             )
             ->where('status', 'finished')
             ->where('type', 'DEPOSIT')
-            ->whereIn('provider', ['stripe', 'paypal', 'chime', 'nowpayments', 'speed'])
+            ->whereIn('provider', ['stripe', 'paypal', 'chime', 'nowpayments', 'speed', 'manual_admin'])
+            // Apply Date Filtering
+            ->whereBetween('created_at', [$start, $end])
             ->groupBy('provider')
             ->get();
 

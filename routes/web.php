@@ -35,6 +35,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('backend/accounts/view', [BackendAccountController::class, 'view'])->name('backend.accounts.view.all');
     Route::get('backend/{backendId}/accounts/view', [BackendAccountController::class, 'view'])->name('backend.accounts.view');
     Route::get('backend/{backendId}/accounts/create', [BackendAccountController::class, 'createMore'])->name('backend.accounts.create');
+    
+    Route::get('/analytics/provider-data', [DashboardController::class, 'getProviderData'])->name('analytics.provider');
 
 });
 

@@ -67,12 +67,22 @@
         </div>
         <div class="col-xl-6">
             <div class="card custom-card">
-                <div class="card-header justify-content-between">
+                <div class="card-header justify-content-between align-items-center">
                     <div class="card-title">
                         Finished Transactions by Provider
                     </div>
+                    <div class="d-flex gap-2">
+                        <input type="date" id="startDate" class="form-control form-control-sm"
+                               value="{{ now()->startOfMonth()->format('Y-m-d') }}">
+                        <input type="date" id="endDate" class="form-control form-control-sm"
+                               value="{{ now()->format('Y-m-d') }}">
+                        <button id="providerFilterBtn" class="btn btn-primary btn-sm">Filter</button>
+                    </div>
                 </div>
                 <div class="card-body">
+                    <div id="chartLoader" class="text-center d-none">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
                     <div id="providerChart" style="height: 500px;"></div>
                 </div>
             </div>
@@ -116,7 +126,7 @@
 @pushonce('scripts')
     <!-- ApexCharts -->
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", async function () {
             // Backend Request Analytics chart start //
             // ====== 1️⃣ Pass PHP data to JS ======
             const backendData = @json($backends);
@@ -355,12 +365,13 @@
             // Backend duration by request type end //
 
             // Provider analytics start //
-            var providersData = @json($providerAnalytics);
-            const options5 = {
+            // 1. Initialize an Empty Chart Structure
+            const providerChartOptions = {
                 chart: {
                     height: 500,
                     type: 'bar',
-                    toolbar: { show: false }
+                    toolbar: { show: false },
+                    animations: { enabled: true } // Smooth transitions
                 },
                 plotOptions: {
                     bar: {
@@ -372,58 +383,29 @@
                 dataLabels: {
                     enabled: true,
                     formatter: (val, opts) => {
-                        const seriesIndex = opts.seriesIndex;
-                        return seriesIndex === 0
-                            ? val.toLocaleString() + ' ($)'
-                            : val.toLocaleString() + ' txns';
+                        return opts.seriesIndex === 0
+                            ? '$' + val.toLocaleString()
+                            : val.toLocaleString();
                     },
-                    style: {
-                        fontSize: '12px',
-                        colors: ['#fff']
-                    }
+                    style: { fontSize: '12px', colors: ['#fff'] }
                 },
-                stroke: {
-                    show: true,
-                    width: 2,
-                    colors: ['transparent']
+                series: [], // Empty initially
+                noData: {
+                    text: 'No data'
                 },
-                series: [
-                    {
-                        name: 'Total Amount ($)',
-                        data: providersData.map(item => item.total_amount)
-                    },
-                    {
-                        name: 'Transaction Count',
-                        data: providersData.map(item => item.total_transactions)
-                    }
-                ],
                 xaxis: {
-                    categories: providersData.map(item => item.provider ?? 'N/A'),
-                    title: { text: 'Provider' },
-                    labels: {
-                        style: {
-                            colors: '#6c757d',
-                            fontSize: '13px'
-                        }
-                    }
+                    categories: [],
+                    title: { text: 'Provider' }
                 },
                 yaxis: [
                     {
-                        title: {
-                            text: 'Total Amount (Minor Units)'
-                        },
-                        labels: {
-                            formatter: val => val.toLocaleString()
-                        }
+                        title: { text: 'Total Amount ($)' },
+                        labels: { formatter: val => '$' + val.toLocaleString() }
                     },
                     {
                         opposite: true,
-                        title: {
-                            text: 'Transaction Count'
-                        },
-                        labels: {
-                            formatter: val => val.toLocaleString()
-                        }
+                        title: { text: 'Transaction Count' },
+                        labels: { formatter: val => val.toLocaleString() }
                     }
                 ],
                 colors: ['#3B82F6', '#10B981'],
@@ -431,19 +413,62 @@
                     shared: true,
                     intersect: false,
                     y: {
-                        formatter: val => val.toLocaleString()
+                        formatter: function (y, { seriesIndex }) {
+                            if(typeof y === "undefined") return y;
+                            return seriesIndex === 0 ? "$" + y.toFixed(2) : y + " txns";
+                        }
                     }
-                },
-                legend: {
-                    position: 'top'
-                },
-                grid: {
-                    borderColor: '#e0e6ed',
-                    strokeDashArray: 4
                 }
             };
 
-            new ApexCharts(document.querySelector("#providerChart"), options5).render();
+            // Render the empty chart
+            var providerChart = new ApexCharts(document.querySelector("#providerChart"), providerChartOptions);
+            providerChart.render();
+
+            // 2. Function to Fetch and Update Data
+            async function fetchProviderData() {
+                const start = document.getElementById('startDate').value;
+                const end = document.getElementById('endDate').value;
+                const loader = document.getElementById('chartLoader');
+                const chartDiv = document.querySelector("#providerChart");
+
+                // UX: Show loader
+                loader.classList.remove('d-none');
+                chartDiv.style.opacity = "0.5";
+
+                try {
+                    // Fetch data from our new API route
+                    const response = await fetch(`/analytics/provider-data?start_date=${start}&end_date=${end}`);
+                    const data = await response.json();
+
+                    // Process Data for ApexCharts
+                    const categories = data.map(item => item.provider || 'N/A');
+                    const amountSeries = data.map(item => parseFloat(item.total_amount));
+                    const countSeries = data.map(item => parseInt(item.total_transactions));
+
+                    // Update the Chart
+                    providerChart.updateOptions({
+                        xaxis: {
+                            categories: categories
+                        }
+                    });
+
+                    providerChart.updateSeries([
+                        { name: 'Total Amount ($)', data: amountSeries },
+                        { name: 'Transaction Count', data: countSeries }
+                    ]);
+
+                } catch (error) {
+                    console.error("Error fetching analytics:", error);
+                } finally {
+                    // UX: Hide loader
+                    loader.classList.add('d-none');
+                    chartDiv.style.opacity = "1";
+                }
+            }
+            await fetchProviderData();
+            document.getElementById('providerFilterBtn')
+                .addEventListener('click', fetchProviderData);
 
             // Provider analytics end //
 
