@@ -24,4 +24,15 @@ class DashboardController extends Controller
         $statusFrequency = $this->analyticsService->statusAnalytics();
         return view('dashboard' , compact('backends', 'statusAnalytics', 'backendDurationType', 'providerAnalytics', 'frequencyAnalytics', 'statusFrequency'));
     }
+
+
+    public function getProviderData(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate   = $request->input('end_date');
+
+        $data = $this->analyticsService->providerAnalytics($startDate, $endDate);
+
+        return response()->json($data);
+    }
 }
