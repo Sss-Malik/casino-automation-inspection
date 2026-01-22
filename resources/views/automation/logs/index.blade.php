@@ -75,7 +75,7 @@
                                         </span>
                                     </td>
                                     <td>{{ $log->source_url }}</td>
-                                    <td>{{ $log->backend->name }}</td>
+                                    <td>{{ $log->backend?->name ?? '' }}</td>
                                     <td>
                                         {{ app()->environment('local')
                                             ? $log->updated_at->timezone('Asia/Karachi')->format('F j, Y g:i A')

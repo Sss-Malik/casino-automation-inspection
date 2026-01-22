@@ -27,6 +27,7 @@ class RequestController extends Controller
         ];
         $endpoints = [
             'read-account'     => ['account_id'],
+            'read-backend'     => [],
             'create-account'   => [],
             'recharge-account' => ['account_id','count', 'order_id', 'amount_to_deduct'],
             'withdraw-account' => ['account_id','count', 'redeem_id'],
@@ -87,7 +88,7 @@ class RequestController extends Controller
             }
 
             // only add x-app-key for these two endpoints
-            if (in_array($data['endpoint'], ['create-account','read-account'])) {
+            if (in_array($data['endpoint'], ['create-account','read-account', 'read-backend'])) {
                 $client = $client->withHeaders([
                     'x-app-key' => $appKey,
                 ]);
@@ -160,6 +161,7 @@ class RequestController extends Controller
     {
         return [
             'read-account'     => ['account_id'],
+            'read-backend'     => [],
             'create-account'   => [],
             'recharge-account' => ['account_id','count', 'amount_to_deduct'],
             'withdraw-account' => ['account_id','count', 'redeem_id'],
