@@ -46,6 +46,9 @@
                                     <option value="vblink">VBLink</option>
                                     <option value="river">River</option>
                                     <option value="milkyway">MilkyWay</option>
+                                    <option value="juwa2">Juwa 2.0</option>
+                                    <option value="goldentreasure">GoldenTreasure</option>
+                                    <option value="yolo">Yolo</option>
                                 </select>
                             </div>
                         </div>
