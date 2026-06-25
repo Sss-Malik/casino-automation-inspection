@@ -23,7 +23,7 @@ class RequestController extends Controller
         // backends + endpoints for the form
         $backends = [
             'gamevault','juwa','juwa2','pandamaster','ultrapanda',
-            'orionstars','gameroom','vblink','milkyway','firekirin', 'river', 'goldentreasure','yolo'
+            'orionstars','gameroom','vblink','milkyway','firekirin', 'river', 'goldentreasure','yolo','cashfrenzy','cashmachine'
         ];
         $endpoints = [
             'read-account'     => ['account_id'],
@@ -154,7 +154,7 @@ class RequestController extends Controller
     // helper getters so validation and view share the same lists
     private function backends()
     {
-        return ['gamevault','juwa','pandamaster','ultrapanda','orionstars','gameroom','vblink','milkyway','firekirin', 'river', 'goldentreasure', 'juwa2','yolo'];
+        return ['gamevault','juwa','pandamaster','ultrapanda','orionstars','gameroom','vblink','milkyway','firekirin', 'river', 'goldentreasure', 'juwa2','yolo', 'cashfrenzy', 'cashmachine'];
     }
 
     private function endpoints()

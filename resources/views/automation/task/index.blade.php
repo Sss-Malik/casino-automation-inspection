@@ -49,6 +49,8 @@
                                     <option value="juwa2">Juwa 2.0</option>
                                     <option value="goldentreasure">GoldenTreasure</option>
                                     <option value="yolo">Yolo</option>
+                                    <option value="cashmachine">Cash Machine</option>
+                                    <option value="cashfrenzy">Cash Frenzy</option>
                                 </select>
                             </div>
                         </div>
