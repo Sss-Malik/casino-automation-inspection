@@ -22,7 +22,8 @@ Route::group(['middleware' => ['auth', 'super_admin']], function () {
 
     Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
     Route::get('tasks/data', [TaskController::class, 'data'])->name('tasks.data');
-    Route::get('logs/{taskId?}', [LogsController::class, 'index'])->name('logs.index');
+    Route::get('logs/data', [LogsController::class, 'data'])->name('logs.data');
+    Route::get('logs/{taskId?}', [LogsController::class, 'index'])->name('logs.index')->whereUuid('taskId');
 
     Route::prefix('requests')->group(function () {
         Route::get('make', [RequestController::class, 'index'])->name('request.index');

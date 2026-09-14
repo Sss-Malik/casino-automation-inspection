@@ -159,7 +159,7 @@ abstract class AutomationTestCase extends TestCase
         ]);
     }
 
-    protected function userWithRole(?string $role, string $email = null): User
+    protected function userWithRole(?string $role, ?string $email = null): User
     {
         $user = User::create([
             'first_name' => 'Test',
@@ -226,6 +226,27 @@ abstract class AutomationTestCase extends TestCase
         ], $request));
 
         return $taskId;
+    }
+
+    /**
+     * Query string for a server-side DataTables request: $columns are the
+     * `data` keys in table order, $searches map a column key to its per-column
+     * search value (what the page's filter dropdowns send).
+     */
+    protected function dataTablesQuery(array $columns, array $searches = [], array $extra = []): string
+    {
+        $params = ['draw' => 1, 'start' => 0, 'length' => 10, 'search' => ['value' => '', 'regex' => 'false']];
+        foreach ($columns as $i => $column) {
+            $params['columns'][$i] = [
+                'data' => $column,
+                'name' => $column,
+                'searchable' => 'true',
+                'orderable' => 'false',
+                'search' => ['value' => $searches[$column] ?? '', 'regex' => 'false'],
+            ];
+        }
+
+        return http_build_query(array_merge($params, $extra));
     }
 
     protected function log(array $attrs = []): int
