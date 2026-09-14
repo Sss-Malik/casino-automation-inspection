@@ -159,6 +159,10 @@
                 {
                     name: 'Withdraw',
                     data: backendData.map(item => item.withdraw_count)
+                },
+                {
+                    name: 'Read Backend',
+                    data: backendData.map(item => item['read-backend_count'])
                 }
             ];
 
