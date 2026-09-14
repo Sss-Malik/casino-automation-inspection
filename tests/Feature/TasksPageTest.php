@@ -22,6 +22,15 @@ class TasksPageTest extends AutomationTestCase
             ->assertSee('dragonfury (disabled)');
     }
 
+    public function test_tasks_page_prefills_the_search_from_a_task_id_query(): void
+    {
+        // The make-request results and the logs page link here by task id.
+        $this->actingAs($this->superAdmin())
+            ->get('/tasks?task_id=aaaaaaaa-0000-0000-0000-000000000001')
+            ->assertOk()
+            ->assertSee('search: "aaaaaaaa-0000-0000-0000-000000000001"', false);
+    }
+
     public function test_tasks_page_does_not_query_tasks_itself(): void
     {
         // index() used to run a 500-row query with logs eager-loaded that the

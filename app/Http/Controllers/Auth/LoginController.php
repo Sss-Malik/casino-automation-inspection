@@ -37,20 +37,11 @@ class LoginController extends Controller
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
 
-        // send() forwards this token's hash to the automation API for user-token rails.
-        $user->createToken('admin-login');
-
         return redirect()->intended(route('dashboard'));
     }
 
     public function logout(Request $request)
     {
-        $user = $request->user();
-
-        if ($user) {
-            $user->tokens()->delete();
-        }
-
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

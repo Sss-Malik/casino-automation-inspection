@@ -83,6 +83,8 @@
                 ajax: "{{ route('tasks.data') }}",
                 pageLength: 10,
                 ordering: false,
+                // ?task_id= lets the logs page and make-request results link straight to a task
+                search: { search: @json(request()->query('task_id', '')) },
                 columns: [
                     { data: 'id' },
                     { data: 'user_id' },

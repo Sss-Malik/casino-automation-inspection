@@ -19,8 +19,6 @@ class EnsureSuperAdmin
         $user = $request->user();
 
         if ($user && ! $user->isSuperAdmin()) {
-            $user->tokens()->where('name', 'admin-login')->delete();
-
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();

@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Automation;
 
 use App\Http\Controllers\Controller;
 use App\Models\AutomationRequest;
+use App\Models\BackendGames;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
 class RequestController extends Controller
@@ -18,91 +19,61 @@ class RequestController extends Controller
         'failed'  => 'bg-danger',
     ];
 
+    /**
+     * The rails a developer can exercise from the panel. All three authenticate
+     * with the shared app key and take nothing but a backend (and an account
+     * name). The other automation endpoints (recharge, freeplay, withdraw,
+     * reset-password, read-account-user) need a player's Sanctum token plus an
+     * order / freeplay / redeem row, so they are only meaningful from the game.
+     */
+    public const ENDPOINTS = [
+        'read-account'   => ['account_id'],
+        'read-backend'   => [],
+        'create-account' => [],
+    ];
+
+    /** Upper bound on one form submission, so a typo cannot flood a backend. */
+    public const MAX_REPEAT = 20;
+
     public function index()
     {
-        // backends + endpoints for the form
-        $backends = [
-            'gamevault','juwa','juwa2','pandamaster','ultrapanda',
-            'orionstars','gameroom','vblink','milkyway','firekirin', 'river', 'goldentreasure','yolo','cashfrenzy','cashmachine'
-        ];
-        $endpoints = [
-            'read-account'     => ['account_id'],
-            'read-backend'     => [],
-            'create-account'   => [],
-            'recharge-account' => ['account_id','count', 'order_id', 'amount_to_deduct'],
-            'withdraw-account' => ['account_id','count', 'redeem_id'],
-            'freeplay-account' => ['account_id','type', 'freeplay_id'],
-            'reset-password' => ['account_id'],
-            'read-account-user' => ['account_id']
-        ];
+        $backends = BackendGames::options();
+        $endpoints = self::ENDPOINTS;
 
-        return view('automation.requests.index', compact('backends','endpoints'));
+        return view('automation.requests.index', compact('backends', 'endpoints'));
     }
 
     public function send(Request $request)
     {
-
-
         $data = $request->validate([
-            'endpoint'   => 'required|in:'.implode(',', array_keys($this->endpoints())),
-            'backend'    => 'required|in:'.implode(',', $this->backends()),
-            'account_id' => 'sometimes|string',
-            'count'      => 'sometimes|integer|min:1',
-            'type'       => 'sometimes|string',
-            'repeat'     => 'required|integer|min:1',
-            'order_id' => 'sometimes|string',
-            'redeem_id' => 'sometimes',
-            'amount_to_deduct' => 'sometimes',
-            'freeplay_id' => 'sometimes'
+            'endpoint'   => ['required', Rule::in(array_keys(self::ENDPOINTS))],
+            'backend'    => ['required', Rule::exists('backend_games', 'name')->whereNull('deleted_at')],
+            'account_id' => ['required_if:endpoint,read-account', 'nullable', 'string', 'max:255'],
+            'repeat'     => ['required', 'integer', 'min:1', 'max:'.self::MAX_REPEAT],
         ]);
 
         $apiBase = config('services.casino_automation.base_url');
-        $appKey   = config('services.casino_automation.app_key');    // <-- load from config/services.php
+        $appKey  = config('services.casino_automation.app_key');
+
+        $body = ['backend' => $data['backend']];
+        foreach (self::ENDPOINTS[$data['endpoint']] as $field) {
+            $body[$field] = $data[$field];
+        }
 
         $responses = [];
         for ($i = 0; $i < $data['repeat']; $i++) {
-            // build JSON payload
-            $body = ['backend' => $data['backend']];
-            foreach (['account_id','count','type', 'redeem_id', 'amount_to_deduct'] as $f) {
-                if (!empty($data[$f])) {
-                    $body[$f] = $data[$f];
-                }
-            }
-
-            // prepare the HTTP client
-            $client = Http::withHeaders([
+            $resp = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ]);
+                'x-app-key' => $appKey,
+            ])->post("$apiBase/{$data['endpoint']}", $body);
 
-            if ($data['endpoint'] === 'recharge-account') {
-                $client = $client->withHeaders([
-                    'x-order-id' => $request->input('order_id')
-                ]);
-            }
-
-            if (in_array($data['endpoint'], ['reset-password', 'read-account-user', 'recharge-account', 'freeplay-account'])) {
-                $token = Auth::user()->tokens()->first()->token;
-                $client->withHeaders([
-                    'token' => $token
-                ]);
-            }
-
-            // only add x-app-key for these two endpoints
-            if (in_array($data['endpoint'], ['create-account','read-account', 'read-backend'])) {
-                $client = $client->withHeaders([
-                    'x-app-key' => $appKey,
-                ]);
-            }
-
-            // fire it off
-            $resp = $client->post("$apiBase/{$data['endpoint']}", $body);
             $responses[] = [
                 'status' => $resp->status(),
                 'body'   => $resp->json(),
             ];
         }
 
-        return back()->with('responses', $responses);
+        return back()->with('responses', $responses)->withInput();
     }
 
 
@@ -148,26 +119,5 @@ class RequestController extends Controller
             })
             ->rawColumns(['task_button', 'type_badge', 'status_badge', 'payload_short'])
             ->make(true);
-    }
-
-
-    // helper getters so validation and view share the same lists
-    private function backends()
-    {
-        return ['gamevault','juwa','pandamaster','ultrapanda','orionstars','gameroom','vblink','milkyway','firekirin', 'river', 'goldentreasure', 'juwa2','yolo', 'cashfrenzy', 'cashmachine'];
-    }
-
-    private function endpoints()
-    {
-        return [
-            'read-account'     => ['account_id'],
-            'read-backend'     => [],
-            'create-account'   => [],
-            'recharge-account' => ['account_id','count', 'amount_to_deduct'],
-            'withdraw-account' => ['account_id','count', 'redeem_id'],
-            'freeplay-account' => ['account_id','type', 'freeplay_id'],
-            'reset-password' => ['account_id'],
-            'read-account-user' => ['account_id']
-        ];
     }
 }
