@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Automation;
 use App\Http\Controllers\Controller;
 use App\Models\BackendGames;
 use App\Models\Logs;
+use App\Support\Format;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
@@ -53,7 +54,7 @@ class LogsController extends Controller
                     .e(Str::limit($row->description, 60))
                     .'</span>';
             })
-            ->editColumn('created_at', fn ($row) => $this->formatDateTime($row->created_at))
+            ->editColumn('created_at', fn ($row) => Format::dateTime($row->created_at))
             ->rawColumns(['type', 'description'])
             ->make(true);
     }

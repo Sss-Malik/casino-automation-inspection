@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Automation;
 use App\Http\Controllers\Controller;
 use App\Models\AutomationResult;
 use App\Models\BackendGames;
+use App\Support\Format;
+use App\Support\TaskDetail;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -48,10 +50,10 @@ class TaskController extends Controller
             ->addColumn('type', fn ($row) => $row->request
                 ? '<span class="badge bg-secondary text-white fs-10">'.e($row->request->type).'</span>'
                 : '—')
-            ->addColumn('payload', fn ($row) => $this->renderPayload($row->request?->payload))
-            ->addColumn('detail', fn ($row) => $this->detail($row))
-            ->addColumn('created_at', fn($row) => $this->formatDateTime($row->created_at))
-            ->addColumn('updated_at', fn($row) => $this->formatDateTime($row->updated_at))
+            ->addColumn('payload', fn ($row) => TaskDetail::payloadCell($row->request?->payload))
+            ->addColumn('detail', fn ($row) => TaskDetail::make($row, $row->request))
+            ->addColumn('created_at', fn($row) => Format::dateTime($row->created_at))
+            ->addColumn('updated_at', fn($row) => Format::dateTime($row->updated_at))
             ->addColumn('data_rendered', function ($row) {
                 if (!$row->data) return 'N/A';
                 $html = "<ul class='mb-0 ps-3'>";
@@ -89,50 +91,5 @@ class TaskController extends Controller
             })
             ->rawColumns(['type', 'payload', 'data_rendered', 'screenshot', 'action', 'description', 'status'])
             ->make(true);
-    }
-
-    /**
-     * Compact one-line JSON of the request payload for the table cell, with
-     * the full JSON in a tooltip. `action` is dropped: the Type column has it.
-     */
-    private function renderPayload(?array $payload): string
-    {
-        if (! $payload) {
-            return '—';
-        }
-
-        unset($payload['action']);
-        $json = json_encode($payload, JSON_UNESCAPED_SLASHES);
-
-        return '<code class="small payload-cell" data-bs-toggle="tooltip" title="'.e($json).'">'
-            .e(Str::limit($json, 80))
-            .'</code>';
-    }
-
-    /**
-     * Everything the task-detail modal shows, as raw values (no HTML).
-     */
-    private function detail(AutomationResult $row): array
-    {
-        return [
-            'id' => $row->id,
-            'user_id' => $row->user_id,
-            'description' => $row->description,
-            'task_id' => $row->task_id,
-            'status' => $row->status,
-            'duration_seconds' => $row->duration_seconds,
-            'data' => $row->data,
-            'backend' => $row->backend?->name,
-            'order_id' => $row->order_id,
-            'screenshot_url' => $row->screenshot_url,
-            'created_at' => $this->formatDateTime($row->created_at),
-            'updated_at' => $this->formatDateTime($row->updated_at),
-            'logs_url' => route('logs.index', ['taskId' => $row->task_id]),
-            'request' => $row->request ? [
-                'type' => $row->request->type,
-                'payload' => $row->request->payload,
-                'created_at' => $this->formatDateTime($row->request->created_at),
-            ] : null,
-        ];
     }
 }

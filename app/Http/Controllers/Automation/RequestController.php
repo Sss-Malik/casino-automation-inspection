@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Automation;
 use App\Http\Controllers\Controller;
 use App\Models\AutomationRequest;
 use App\Models\BackendGames;
+use App\Support\Format;
+use App\Support\TaskDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
@@ -14,9 +16,10 @@ class RequestController extends Controller
 {
 
     protected $statusMap = [
-        'pending' => 'bg-warning',
-        'success' => 'bg-success',
-        'failed'  => 'bg-danger',
+        'pending'  => 'bg-warning',
+        'success'  => 'bg-success',
+        'finished' => 'bg-success',
+        'failed'   => 'bg-danger',
     ];
 
     /**
@@ -79,45 +82,51 @@ class RequestController extends Controller
 
     public function view(Request $request)
     {
-        return view('automation.requests.view');
+        $backends = BackendGames::options();
+
+        return view('automation.requests.view', compact('backends'));
     }
 
     public function data(Request $request)
     {
-        $query = AutomationRequest::with('result.backend')->latest('created_at');
+        // Ordered by id: monotonic with created_at and the only indexed column.
+        $query = AutomationRequest::with('result.backend')->orderByDesc('id');
 
         return DataTables::eloquent($query)
-            ->addColumn('task_button', function ($req) {
-                return view('automation.requests.partials.task-button', compact('req'))->render();
+            ->filterColumn('type_badge', fn ($query, $keyword) => $query->where('type', $keyword))
+            ->filterColumn('backend', function ($query, $keyword) {
+                $query->whereHas('result.backend', fn ($q) => $q->where('name', 'LIKE', "%{$keyword}%"));
+            })
+            ->filterColumn('payload', fn ($query, $keyword) => $query->where('payload', 'LIKE', "%{$keyword}%"))
+            ->editColumn('task_id', function ($req) {
+                return '<button type="button" class="btn btn-link p-0 view-task font-monospace" title="View task">'
+                    .e($req->task_id).'</button>';
             })
             ->addColumn('type_badge', function ($req) {
                 $typeClass = [
-                    'create' => 'bg-success',
-                    'update' => 'bg-info',
-                    'delete' => 'bg-danger',
+                    'create'   => 'bg-primary',
+                    'recharge' => 'bg-success',
+                    'freeplay' => 'bg-info',
+                    'withdraw' => 'bg-warning',
+                    'read'     => 'bg-secondary',
                 ];
                 $class = $typeClass[$req->type] ?? 'bg-secondary';
 
-                return "<span class='badge $class text-white fs-10'>" . ucfirst($req->type) . "</span>";
+                return "<span class='badge $class text-white fs-10'>".e($req->type)."</span>";
             })
             ->addColumn('status_badge', function ($req) {
-                $code = $req->status_code;
+                $result = $req->result;
+                $class = $result ? ($this->statusMap[$result->status] ?? 'bg-secondary') : 'bg-secondary';
 
-                return "<span class='badge text-white fs-10'>"
-                    . ($code ?? '—') . "</span>";
+                return "<span class='badge $class text-white fs-10'>".e($result?->status ?? 'no result')."</span>"
+                    .($req->status_code ? " <span class='badge bg-dark text-white fs-10'>".e($req->status_code).'</span>' : '');
             })
-            ->addColumn('payload_short', function ($req) {
-                return '<code class="small d-inline-block text-wrap">' .
-                    \Illuminate\Support\Str::limit(json_encode($req->payload, JSON_UNESCAPED_SLASHES), 120)
-                    . '</code>';
-            })
-            ->addColumn('created_fmt', function ($req) {
-                return app()->environment('local') ? $req->created_at->timezone('Asia/Karachi')->format('F j, Y g:i A'): $req->created_at->format('F j, Y g:i A');
-            })
-            ->addColumn('updated_fmt', function ($req) {
-                return app()->environment('local') ? $req->updated_at->timezone('Asia/Karachi')->format('F j, Y g:i A'): $req->updated_at->format('F j, Y g:i A');
-            })
-            ->rawColumns(['task_button', 'type_badge', 'status_badge', 'payload_short'])
+            ->addColumn('backend', fn ($req) => $req->result?->backend?->name ?? '')
+            ->addColumn('payload', fn ($req) => TaskDetail::payloadCell($req->payload))
+            ->addColumn('detail', fn ($req) => TaskDetail::make($req->result, $req))
+            ->addColumn('created_fmt', fn ($req) => Format::dateTime($req->created_at))
+            ->addColumn('updated_fmt', fn ($req) => Format::dateTime($req->updated_at))
+            ->rawColumns(['task_id', 'type_badge', 'status_badge', 'payload'])
             ->make(true);
     }
 }
