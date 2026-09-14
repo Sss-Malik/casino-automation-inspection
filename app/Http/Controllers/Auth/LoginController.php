@@ -22,10 +22,12 @@ class LoginController extends Controller
             'password' => ['required','string'],
         ]);
 
-        // Only allow super-admin@admin.com
+        // The users table is production's: every player has a row here.
+        // A non-admin gets the same generic error as a wrong password so the
+        // form does not reveal which accounts exist or what role they hold.
         $user = User::where('email', $data['email'])->first();
         if (
-            ! $user || ! Hash::check($data['password'], $user->password)
+            ! $user || ! Hash::check($data['password'], $user->password) || ! $user->isSuperAdmin()
         ) {
             return back()->withErrors([
                 'email' => 'These credentials do not match our records.'
@@ -35,7 +37,8 @@ class LoginController extends Controller
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
 
-        $token = $user->createToken('admin-login')->plainTextToken;
+        // send() forwards this token's hash to the automation API for user-token rails.
+        $user->createToken('admin-login');
 
         return redirect()->intended(route('dashboard'));
     }

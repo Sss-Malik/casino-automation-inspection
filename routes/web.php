@@ -17,7 +17,7 @@ Route::get('login', [LoginController::class, 'showLoginForm'])
 Route::post('/login', [LoginController::class, 'login']);
 
 
-Route::group(['middleware' => 'auth'], function () {
+Route::group(['middleware' => ['auth', 'super_admin']], function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');

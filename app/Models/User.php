@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
@@ -54,6 +55,20 @@ class User extends Authenticatable
 
     public function backendAccounts() {
         return $this->hasMany(BackendAccounts::class, 'user_id');
+    }
+
+    /**
+     * The panel shares the production `users` table, which holds every player.
+     * Only the production app's "Super Admin" role (Spatie tables) may enter.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return DB::table('model_has_roles')
+            ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+            ->where('model_has_roles.model_type', self::class)
+            ->where('model_has_roles.model_id', $this->getKey())
+            ->where('roles.name', 'Super Admin')
+            ->exists();
     }
 
 }
