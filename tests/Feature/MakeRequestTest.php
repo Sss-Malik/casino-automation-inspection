@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -105,6 +106,20 @@ class MakeRequestTest extends AutomationTestCase
             && $responses[0]['status'] === 200
             && $responses[0]['body']['task_id'] === 'abc');
         Http::assertSentCount(3);
+    }
+
+    public function test_send_reports_an_unreachable_automation_service_as_a_result(): void
+    {
+        // "The service is down" is the finding a developer came here for;
+        // it must render as a result, not as a 500 page.
+        Http::fake(fn () => throw new ConnectionException('cURL error 7: Failed to connect'));
+
+        $response = $this->actingAs($this->superAdmin())
+            ->post('/requests/send', ['endpoint' => 'read-backend', 'backend' => 'juwa', 'repeat' => 2]);
+
+        $response->assertSessionHas('responses', fn ($responses) => count($responses) === 2
+            && $responses[0]['status'] === 0
+            && str_contains($responses[0]['body']['error'], 'Failed to connect'));
     }
 
     public function test_send_caps_the_repeat_count(): void

@@ -7,6 +7,7 @@ use App\Models\AutomationRequest;
 use App\Models\BackendGames;
 use App\Support\Format;
 use App\Support\TaskDetail;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
@@ -65,15 +66,23 @@ class RequestController extends Controller
 
         $responses = [];
         for ($i = 0; $i < $data['repeat']; $i++) {
-            $resp = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'x-app-key' => $appKey,
-            ])->post("$apiBase/{$data['endpoint']}", $body);
+            try {
+                $resp = Http::timeout(15)->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'x-app-key' => $appKey,
+                ])->post("$apiBase/{$data['endpoint']}", $body);
 
-            $responses[] = [
-                'status' => $resp->status(),
-                'body'   => $resp->json(),
-            ];
+                $responses[] = [
+                    'status' => $resp->status(),
+                    'body'   => $resp->json() ?? ['raw' => $resp->body()],
+                ];
+            } catch (ConnectionException $e) {
+                // An unreachable service is a finding, not a crash: show it.
+                $responses[] = [
+                    'status' => 0,
+                    'body'   => ['error' => 'Automation service unreachable: '.$e->getMessage(), 'url' => "$apiBase/{$data['endpoint']}"],
+                ];
+            }
         }
 
         return back()->with('responses', $responses)->withInput();
