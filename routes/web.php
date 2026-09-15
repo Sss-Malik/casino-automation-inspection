@@ -14,15 +14,16 @@ Route::redirect('/', '/dashboard');
 Route::get('login', [LoginController::class, 'showLoginForm'])
     ->name('login');
 
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:5,1');
 
 
-Route::group(['middleware' => 'auth'], function () {
+Route::group(['middleware' => ['auth', 'super_admin']], function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
     Route::get('tasks/data', [TaskController::class, 'data'])->name('tasks.data');
-    Route::get('logs/{taskId?}', [LogsController::class, 'index'])->name('logs.index');
+    Route::get('logs/data', [LogsController::class, 'data'])->name('logs.data');
+    Route::get('logs/{taskId?}', [LogsController::class, 'index'])->name('logs.index')->whereUuid('taskId');
 
     Route::prefix('requests')->group(function () {
         Route::get('make', [RequestController::class, 'index'])->name('request.index');
@@ -34,7 +35,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('backend/accounts/stats', [BackendAccountController::class, 'index'])->name('backend.accounts.stats');
     Route::get('backend/accounts/view', [BackendAccountController::class, 'view'])->name('backend.accounts.view.all');
     Route::get('backend/{backendId}/accounts/view', [BackendAccountController::class, 'view'])->name('backend.accounts.view');
-    Route::get('backend/{backendId}/accounts/create', [BackendAccountController::class, 'createMore'])->name('backend.accounts.create');
+    Route::post('backend/{backendId}/accounts/create', [BackendAccountController::class, 'createMore'])->name('backend.accounts.create');
     
     Route::get('/analytics/provider-data', [DashboardController::class, 'getProviderData'])->name('analytics.provider');
 

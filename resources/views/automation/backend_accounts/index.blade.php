@@ -68,12 +68,14 @@
                                 <td class="text-center">{{ $assigned }}</td>
                                 <td class="text-center">{{ $unassigned }}</td>
                                 <td class="text-center">
-                                    <a
-                                        href="{{ route('backend.accounts.create', ['backendId' => $backend->id]) }}"
-                                        class="btn btn-sm btn-primary"
-                                    >
-                                        Create more
-                                    </a>
+                                    {{-- POST + CSRF: this fires a real create-account at the automation service --}}
+                                    <form method="POST" action="{{ route('backend.accounts.create', ['backendId' => $backend->id]) }}" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-primary"
+                                                onclick="return confirm('Create one more {{ $backend->name }} pool account?')">
+                                            Create more
+                                        </button>
+                                    </form>
                                     <a
                                         href="{{ route('backend.accounts.view', ['backendId' => $backend->id]) }}"
                                         class="btn btn-sm btn-secondary"

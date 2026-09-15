@@ -4,14 +4,7 @@
 
 
 @section('content')
-    @php
-        $statusClass = [
-            'info' => 'bg-info',
-            'error' => 'bg-danger',
-            'warning' => 'bg-warning'
-        ];
-    @endphp
-        <!-- Start::row-1 -->
+    <!-- Start::row-1 -->
     <div class="row mt-5">
         <div class="col-xl-12">
             <div class="card custom-card">
@@ -23,30 +16,30 @@
                 <div class="card-body">
                     <div class="table-responsive">
                         <div class="row mb-3">
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label for="typeFilter">Filter by Type</label>
                                 <select id="typeFilter" class="form-control">
                                     <option value="">All</option>
                                     <option value="info">Info</option>
                                     <option value="error">Error</option>
                                     <option value="warning">Warning</option>
+                                    <option value="debug">Debug</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
                                 <label for="backendFilter">Filter by Backend</label>
                                 <select id="backendFilter" class="form-control">
-                                    <option value="">All</option>
-                                    <option value="firekirin">FireKirin</option>
-                                    <option value="gameroom">GameRoom</option>
-                                    <option value="gamevault">GameVault</option>
-                                    <option value="juwa">Juwa</option>
-                                    <option value="orionstars">OrionStars</option>
-                                    <option value="pandamaster">PandaMaster</option>
-                                    <option value="ultrapanda">UltraPanda</option>
-                                    <option value="vblink">VBLink</option>
-                                    <option value="river">River</option>
-                                    <option value="milkyway">MilkyWay</option>
+                                    @include('automation.partials.backend-options')
                                 </select>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="taskFilter">Task ID</label>
+                                <div class="input-group">
+                                    <input type="text" id="taskFilter" class="form-control font-monospace"
+                                           placeholder="paste a task id to see only its log lines"
+                                           value="{{ $taskId ?? '' }}">
+                                    <button type="button" id="taskFilterClear" class="btn btn-light">Clear</button>
+                                </div>
                             </div>
                         </div>
 
@@ -58,32 +51,10 @@
                                 <th>Description</th>
                                 <th>Source</th>
                                 <th>Backend</th>
+                                <th>Task ID</th>
                                 <th>Created</th>
                             </tr>
                             </thead>
-                            <tbody>
-                            @foreach($logs as $log)
-                                <tr>
-                                    <td>{{ $log->id }}</td>
-                                    <td><span class="badge {{ $statusClass[$log->type] }} fs-10">{{ $log->type }}</span></td>
-                                    <td>
-                                        <span class="desc-tooltip"
-                                              data-bs-toggle="tooltip"
-                                              data-bs-html="true"
-                                              title="{!! nl2br(e($log->description)) !!}">
-                                            {{ \Illuminate\Support\Str::limit($log->description, 40) }}
-                                        </span>
-                                    </td>
-                                    <td>{{ $log->source_url }}</td>
-                                    <td>{{ $log->backend?->name ?? '' }}</td>
-                                    <td>
-                                        {{ app()->environment('local')
-                                            ? $log->updated_at->timezone('Asia/Karachi')->format('F j, Y g:i A')
-                                            : $log->updated_at->format('F j, Y g:i A') }}
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -96,26 +67,57 @@
 @push('scripts')
     <script>
         $(document).ready(function () {
+            const taskFilter = $('#taskFilter');
+
             const table = $('#datatable-basic').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('logs.data') }}",
+                    data: function (d) {
+                        d.task_id = taskFilter.val().trim();
+                    }
+                },
                 language: {
                     searchPlaceholder: 'Search...',
                     sSearch: '',
                 },
-                pageLength: 10,
-                ordering: false
+                pageLength: 25,
+                ordering: false,
+                searchDelay: 500,
+                columns: [
+                    { data: 'id' },
+                    { data: 'type' },
+                    { data: 'description' },
+                    { data: 'source_url' },
+                    { data: 'backend' },
+                    { data: 'task_id', className: 'font-monospace' },
+                    { data: 'created_at', searchable: false }
+                ]
             });
 
-            // Status filter
             $('#typeFilter').on('change', function () {
-                const value = $(this).val();
-                table.column(1).search(value).draw();
+                table.column(1).search($(this).val()).draw();
             });
 
             $('#backendFilter').on('change', function () {
-                const value = $(this).val();
-                table.column(4).search(value).draw();
+                table.column(4).search($(this).val()).draw();
+            });
+
+            let taskTimer;
+            taskFilter.on('input', function () {
+                clearTimeout(taskTimer);
+                taskTimer = setTimeout(() => table.draw(), 300);
+            });
+
+            $('#taskFilterClear').on('click', function () {
+                taskFilter.val('');
+                table.draw();
+            });
+
+            $('#datatable-basic').on('draw.dt', function () {
+                $('[data-bs-toggle="tooltip"]').tooltip();
             });
         });
     </script>
-
 @endpush

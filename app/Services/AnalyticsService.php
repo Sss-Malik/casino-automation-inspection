@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\AutomationResult;
 use App\Models\BackendGames;
-use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -19,30 +18,36 @@ class AnalyticsService
     }
 
 
-    public function userAnalytics() {
-        $users = User::all();
-
-    }
-
-
+    /**
+     * Request counts per backend, per request type.
+     *
+     * Aggregated in SQL on purpose: eager-loading every task (350k+ rows in
+     * production) blew the 65k placeholder limit and the PHP memory limit.
+     */
     public function backendRequestAnalytics()
     {
-        return BackendGames::with(['tasks.request'])
+        $types = ['freeplay', 'recharge', 'create', 'read', 'reset-password', 'withdraw', 'read-backend'];
+
+        $countsByBackend = DB::table('automation_results as res')
+            ->join('automation_requests as req', 'req.task_id', '=', 'res.task_id')
+            ->select('res.backend_id', 'req.type', DB::raw('COUNT(*) as total'))
+            ->groupBy('res.backend_id', 'req.type')
             ->get()
-            ->map(function ($game) {
-                $requests = $game->tasks->pluck('request')->filter();
-                $types = ['freeplay', 'recharge', 'create', 'read', 'reset-password', 'withdraw'];
+            ->groupBy('backend_id');
 
-                $counts = collect($types)->mapWithKeys(fn($type) => [
-                    "{$type}_count" => $requests->where('type', $type)->count()
-                ]);
+        return BackendGames::whereNull('deleted_at')->get()->map(function ($game) use ($countsByBackend, $types) {
+            $byType = ($countsByBackend[$game->id] ?? collect())->pluck('total', 'type');
 
-                return [
-                    'game_name' => $game->name,
-                    'total_requests' => $requests->count(),
-                    ...$counts
-                ];
-            });
+            $row = [
+                'game_name' => $game->name,
+                'total_requests' => (int) $byType->sum(),
+            ];
+            foreach ($types as $type) {
+                $row["{$type}_count"] = (int) ($byType[$type] ?? 0);
+            }
+
+            return $row;
+        });
     }
 
 

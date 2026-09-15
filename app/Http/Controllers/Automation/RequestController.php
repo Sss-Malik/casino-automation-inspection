@@ -4,170 +4,150 @@ namespace App\Http\Controllers\Automation;
 
 use App\Http\Controllers\Controller;
 use App\Models\AutomationRequest;
+use App\Models\BackendGames;
+use App\Support\Format;
+use App\Support\TaskDetail;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
 class RequestController extends Controller
 {
 
     protected $statusMap = [
-        'pending' => 'bg-warning',
-        'success' => 'bg-success',
-        'failed'  => 'bg-danger',
+        'pending'  => 'bg-warning',
+        'success'  => 'bg-success',
+        'finished' => 'bg-success',
+        'failed'   => 'bg-danger',
     ];
+
+    /**
+     * The rails a developer can exercise from the panel. All three authenticate
+     * with the shared app key and take nothing but a backend (and an account
+     * name). The other automation endpoints (recharge, freeplay, withdraw,
+     * reset-password, read-account-user) need a player's Sanctum token plus an
+     * order / freeplay / redeem row, so they are only meaningful from the game.
+     */
+    public const ENDPOINTS = [
+        'read-account'   => ['account_id'],
+        'read-backend'   => [],
+        'create-account' => [],
+    ];
+
+    /** Upper bound on one form submission, so a typo cannot flood a backend. */
+    public const MAX_REPEAT = 20;
 
     public function index()
     {
-        // backends + endpoints for the form
-        $backends = [
-            'gamevault','juwa','juwa2','pandamaster','ultrapanda',
-            'orionstars','gameroom','vblink','milkyway','firekirin', 'river', 'goldentreasure','yolo','cashfrenzy','cashmachine'
-        ];
-        $endpoints = [
-            'read-account'     => ['account_id'],
-            'read-backend'     => [],
-            'create-account'   => [],
-            'recharge-account' => ['account_id','count', 'order_id', 'amount_to_deduct'],
-            'withdraw-account' => ['account_id','count', 'redeem_id'],
-            'freeplay-account' => ['account_id','type', 'freeplay_id'],
-            'reset-password' => ['account_id'],
-            'read-account-user' => ['account_id']
-        ];
+        $backends = BackendGames::options();
+        $endpoints = self::ENDPOINTS;
 
-        return view('automation.requests.index', compact('backends','endpoints'));
+        return view('automation.requests.index', compact('backends', 'endpoints'));
     }
 
     public function send(Request $request)
     {
-
-
         $data = $request->validate([
-            'endpoint'   => 'required|in:'.implode(',', array_keys($this->endpoints())),
-            'backend'    => 'required|in:'.implode(',', $this->backends()),
-            'account_id' => 'sometimes|string',
-            'count'      => 'sometimes|integer|min:1',
-            'type'       => 'sometimes|string',
-            'repeat'     => 'required|integer|min:1',
-            'order_id' => 'sometimes|string',
-            'redeem_id' => 'sometimes',
-            'amount_to_deduct' => 'sometimes',
-            'freeplay_id' => 'sometimes'
+            'endpoint'   => ['required', Rule::in(array_keys(self::ENDPOINTS))],
+            'backend'    => ['required', Rule::exists('backend_games', 'name')->whereNull('deleted_at')],
+            'account_id' => ['required_if:endpoint,read-account', 'nullable', 'string', 'max:255'],
+            'repeat'     => ['required', 'integer', 'min:1', 'max:'.self::MAX_REPEAT],
         ]);
 
         $apiBase = config('services.casino_automation.base_url');
-        $appKey   = config('services.casino_automation.app_key');    // <-- load from config/services.php
+        $appKey  = config('services.casino_automation.app_key');
+
+        $body = ['backend' => $data['backend']];
+        foreach (self::ENDPOINTS[$data['endpoint']] as $field) {
+            $body[$field] = $data[$field];
+        }
 
         $responses = [];
         for ($i = 0; $i < $data['repeat']; $i++) {
-            // build JSON payload
-            $body = ['backend' => $data['backend']];
-            foreach (['account_id','count','type', 'redeem_id', 'amount_to_deduct'] as $f) {
-                if (!empty($data[$f])) {
-                    $body[$f] = $data[$f];
-                }
-            }
-
-            // prepare the HTTP client
-            $client = Http::withHeaders([
-                'Content-Type' => 'application/json',
-            ]);
-
-            if ($data['endpoint'] === 'recharge-account') {
-                $client = $client->withHeaders([
-                    'x-order-id' => $request->input('order_id')
-                ]);
-            }
-
-            if (in_array($data['endpoint'], ['reset-password', 'read-account-user', 'recharge-account', 'freeplay-account'])) {
-                $token = Auth::user()->tokens()->first()->token;
-                $client->withHeaders([
-                    'token' => $token
-                ]);
-            }
-
-            // only add x-app-key for these two endpoints
-            if (in_array($data['endpoint'], ['create-account','read-account', 'read-backend'])) {
-                $client = $client->withHeaders([
+            try {
+                $resp = Http::timeout(15)->withHeaders([
+                    'Content-Type' => 'application/json',
                     'x-app-key' => $appKey,
-                ]);
-            }
+                ])->post("$apiBase/{$data['endpoint']}", $body);
 
-            // fire it off
-            $resp = $client->post("$apiBase/{$data['endpoint']}", $body);
-            $responses[] = [
-                'status' => $resp->status(),
-                'body'   => $resp->json(),
-            ];
+                $responses[] = [
+                    'status' => $resp->status(),
+                    'body'   => $resp->json() ?? ['raw' => $resp->body()],
+                ];
+            } catch (ConnectionException $e) {
+                // An unreachable service is a finding, not a crash: show it,
+                // and stop — re-trying a dead host at 15s a go would outlive
+                // the web server's request timeout and lose this page.
+                $remaining = $data['repeat'] - $i - 1;
+                $responses[] = [
+                    'status' => 0,
+                    'body'   => [
+                        'error' => 'Automation service unreachable: '.$e->getMessage(),
+                        'url' => "$apiBase/{$data['endpoint']}",
+                        'note' => "{$remaining} remaining attempt(s) skipped",
+                    ],
+                ];
+                break;
+            }
         }
 
-        return back()->with('responses', $responses);
+        return back()->with('responses', $responses)->withInput();
     }
 
 
     public function view(Request $request)
     {
-        return view('automation.requests.view');
+        $backends = BackendGames::options();
+
+        return view('automation.requests.view', compact('backends'));
     }
 
     public function data(Request $request)
     {
-        $query = AutomationRequest::with('result.backend')->latest('created_at');
+        // Ordered by id: monotonic with created_at and the only indexed column.
+        $query = AutomationRequest::with('result.backend')->orderByDesc('id');
 
         return DataTables::eloquent($query)
-            ->addColumn('task_button', function ($req) {
-                return view('automation.requests.partials.task-button', compact('req'))->render();
+            ->filterColumn('type_badge', fn ($query, $keyword) => $query->where('type', $keyword))
+            ->filterColumn('backend', function ($query, $keyword) {
+                // One pass over automation_results by its indexed backend_id,
+                // not a per-row EXISTS.
+                if (ctype_digit($keyword)) {
+                    $query->whereIn('task_id', fn ($q) => $q->select('task_id')->from('automation_results')->where('backend_id', (int) $keyword));
+                }
+            })
+            ->filterColumn('payload', fn ($query, $keyword) => $query->where('payload', 'LIKE', "%{$keyword}%"))
+            ->editColumn('task_id', function ($req) {
+                return '<button type="button" class="btn btn-link p-0 view-task font-monospace" title="View task">'
+                    .e($req->task_id).'</button>';
             })
             ->addColumn('type_badge', function ($req) {
                 $typeClass = [
-                    'create' => 'bg-success',
-                    'update' => 'bg-info',
-                    'delete' => 'bg-danger',
+                    'create'   => 'bg-primary',
+                    'recharge' => 'bg-success',
+                    'freeplay' => 'bg-info',
+                    'withdraw' => 'bg-warning',
+                    'read'     => 'bg-secondary',
                 ];
                 $class = $typeClass[$req->type] ?? 'bg-secondary';
 
-                return "<span class='badge $class text-white fs-10'>" . ucfirst($req->type) . "</span>";
+                return "<span class='badge $class text-white fs-10'>".e($req->type)."</span>";
             })
             ->addColumn('status_badge', function ($req) {
-                $code = $req->status_code;
+                $result = $req->result;
+                $class = $result ? ($this->statusMap[$result->status] ?? 'bg-secondary') : 'bg-secondary';
 
-                return "<span class='badge text-white fs-10'>"
-                    . ($code ?? '—') . "</span>";
+                return "<span class='badge $class text-white fs-10'>".e($result?->status ?? 'no result')."</span>"
+                    .($req->status_code ? " <span class='badge bg-dark text-white fs-10'>".e($req->status_code).'</span>' : '');
             })
-            ->addColumn('payload_short', function ($req) {
-                return '<code class="small d-inline-block text-wrap">' .
-                    \Illuminate\Support\Str::limit(json_encode($req->payload, JSON_UNESCAPED_SLASHES), 120)
-                    . '</code>';
-            })
-            ->addColumn('created_fmt', function ($req) {
-                return app()->environment('local') ? $req->created_at->timezone('Asia/Karachi')->format('F j, Y g:i A'): $req->created_at->format('F j, Y g:i A');
-            })
-            ->addColumn('updated_fmt', function ($req) {
-                return app()->environment('local') ? $req->updated_at->timezone('Asia/Karachi')->format('F j, Y g:i A'): $req->updated_at->format('F j, Y g:i A');
-            })
-            ->rawColumns(['task_button', 'type_badge', 'status_badge', 'payload_short'])
+            ->addColumn('backend', fn ($req) => $req->result?->backend?->name ?? '')
+            ->addColumn('payload', fn ($req) => TaskDetail::payloadCell($req->payload))
+            ->addColumn('detail', fn ($req) => TaskDetail::json($req->result, $req))
+            ->addColumn('created_fmt', fn ($req) => Format::dateTime($req->created_at))
+            ->addColumn('updated_fmt', fn ($req) => Format::dateTime($req->updated_at))
+            ->rawColumns(['task_id', 'type_badge', 'status_badge', 'payload', 'detail'])
             ->make(true);
-    }
-
-
-    // helper getters so validation and view share the same lists
-    private function backends()
-    {
-        return ['gamevault','juwa','pandamaster','ultrapanda','orionstars','gameroom','vblink','milkyway','firekirin', 'river', 'goldentreasure', 'juwa2','yolo', 'cashfrenzy', 'cashmachine'];
-    }
-
-    private function endpoints()
-    {
-        return [
-            'read-account'     => ['account_id'],
-            'read-backend'     => [],
-            'create-account'   => [],
-            'recharge-account' => ['account_id','count', 'amount_to_deduct'],
-            'withdraw-account' => ['account_id','count', 'redeem_id'],
-            'freeplay-account' => ['account_id','type', 'freeplay_id'],
-            'reset-password' => ['account_id'],
-            'read-account-user' => ['account_id']
-        ];
     }
 }
