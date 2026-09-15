@@ -53,6 +53,19 @@ class LoginGateTest extends AutomationTestCase
         $this->assertGuest();
     }
 
+    public function test_login_is_rate_limited(): void
+    {
+        // A guess here is a guess at the production Super Admin password.
+        $admin = $this->superAdmin();
+
+        foreach (range(1, 5) as $_) {
+            $this->post('/login', ['email' => $admin->email, 'password' => 'wrong'])->assertRedirect();
+        }
+
+        $this->post('/login', ['email' => $admin->email, 'password' => 'secret123'])->assertStatus(429);
+        $this->assertGuest();
+    }
+
     public function test_super_admin_session_reaches_protected_pages(): void
     {
         $this->actingAs($this->superAdmin())->get('/tasks')->assertOk();

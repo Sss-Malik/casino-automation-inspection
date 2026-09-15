@@ -14,7 +14,7 @@ Route::redirect('/', '/dashboard');
 Route::get('login', [LoginController::class, 'showLoginForm'])
     ->name('login');
 
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:5,1');
 
 
 Route::group(['middleware' => ['auth', 'super_admin']], function () {
@@ -35,7 +35,7 @@ Route::group(['middleware' => ['auth', 'super_admin']], function () {
     Route::get('backend/accounts/stats', [BackendAccountController::class, 'index'])->name('backend.accounts.stats');
     Route::get('backend/accounts/view', [BackendAccountController::class, 'view'])->name('backend.accounts.view.all');
     Route::get('backend/{backendId}/accounts/view', [BackendAccountController::class, 'view'])->name('backend.accounts.view');
-    Route::get('backend/{backendId}/accounts/create', [BackendAccountController::class, 'createMore'])->name('backend.accounts.create');
+    Route::post('backend/{backendId}/accounts/create', [BackendAccountController::class, 'createMore'])->name('backend.accounts.create');
     
     Route::get('/analytics/provider-data', [DashboardController::class, 'getProviderData'])->name('analytics.provider');
 
