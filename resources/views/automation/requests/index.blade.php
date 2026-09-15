@@ -90,7 +90,7 @@
                                 <strong>Request #{{ $i+1 }}</strong> — HTTP {{ $resp['status'] }}
                                 @if(!empty($resp['body']['task_id']))
                                     · <a href="{{ route('logs.index', ['taskId' => $resp['body']['task_id']]) }}">logs</a>
-                                    · <a href="{{ route('tasks.index') }}?task_id={{ $resp['body']['task_id'] }}">task</a>
+                                    · <a href="{{ route('tasks.index', ['task_id' => $resp['body']['task_id']]) }}">task</a>
                                 @endif
                                 <pre class="mb-0 mt-2 small" style="white-space: pre-wrap; word-break: break-all;">{{ json_encode($resp['body'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
                             </div>

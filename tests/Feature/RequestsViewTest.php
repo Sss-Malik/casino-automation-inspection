@@ -24,33 +24,51 @@ class RequestsViewTest extends AutomationTestCase
             ->assertOk()
             ->json('data.0');
 
-        $this->assertSame($long, $row['detail']['request']['payload']['note']);
+        $detail = json_decode($row['detail'], true);
+        $this->assertSame($long, $detail['request']['payload']['note']);
         $this->assertStringContainsString($long, $row['payload'], 'full payload must be reachable from the cell');
-        $this->assertSame('juwa', $row['detail']['backend']);
+        $this->assertSame('juwa', $detail['backend']);
     }
 
     public function test_requests_data_includes_the_backend_and_filters_by_it(): void
     {
         $juwa = $this->backend('juwa');
-        $river = $this->backend('river');
+        $juwa2 = $this->backend('juwa2');
         $this->task(['backend_id' => $juwa], ['type' => 'read']);
-        $this->task(['backend_id' => $river], ['type' => 'read']);
+        $this->task(['backend_id' => $juwa2], ['type' => 'read']);
 
         $response = $this->actingAs($this->superAdmin())->getJson(
-            '/requests/data?'.$this->dataTablesQuery($this->columns, ['backend' => 'river'])
+            '/requests/data?'.$this->dataTablesQuery($this->columns, ['backend' => (string) $juwa])
         );
 
         $response->assertOk()->assertJsonPath('recordsFiltered', 1);
-        $this->assertSame('river', $response->json('data.0.backend'));
+        $this->assertSame('juwa', $response->json('data.0.backend'));
     }
 
     public function test_requests_page_lists_backends_from_the_database(): void
     {
-        $this->backend('dragonfury');
+        $id = $this->backend('dragonfury');
 
         $this->actingAs($this->superAdmin())->get('/requests/view')
             ->assertOk()
-            ->assertSee('<option value="dragonfury"', false);
+            ->assertSee('<option value="'.$id.'"', false)
+            ->assertSee('dragonfury');
+    }
+
+    public function test_request_detail_keeps_special_characters_intact(): void
+    {
+        $this->task(['backend_id' => $this->backend('juwa'), 'description' => "it's & <b>"], [
+            'payload' => json_encode(['action' => 'read-account', 'backend' => 'juwa', 'account_id' => "user'JW&1"]),
+        ]);
+
+        $row = $this->actingAs($this->superAdmin())
+            ->getJson('/requests/data?'.$this->dataTablesQuery($this->columns))
+            ->assertOk()
+            ->json('data.0');
+
+        $detail = json_decode($row['detail'], true);
+        $this->assertSame("it's & <b>", $detail['description']);
+        $this->assertSame("user'JW&1", $detail['request']['payload']['account_id']);
     }
 
     public function test_requests_data_survives_a_request_with_no_result_row(): void
@@ -66,8 +84,9 @@ class RequestsViewTest extends AutomationTestCase
             ->assertOk()
             ->json('data.0');
 
-        $this->assertSame('read', $row['detail']['request']['type']);
-        $this->assertNull($row['detail']['status']);
+        $detail = json_decode($row['detail'], true);
+        $this->assertSame('read', $detail['request']['type']);
+        $this->assertNull($detail['status']);
         $this->assertSame('', $row['backend']);
     }
 }

@@ -35,6 +35,16 @@ class DashboardAnalyticsTest extends AutomationTestCase
         $this->assertSame(0, $rows['idle']['read_count']);
     }
 
+    public function test_backend_request_analytics_skips_soft_deleted_backends(): void
+    {
+        $this->backend('juwa');
+        DB::table('backend_games')->insert(['name' => 'gone', 'deleted_at' => now(), 'created_at' => now(), 'updated_at' => now()]);
+
+        $names = app(AnalyticsService::class)->backendRequestAnalytics()->pluck('game_name')->all();
+
+        $this->assertSame(['juwa'], $names);
+    }
+
     public function test_backend_request_analytics_never_binds_one_placeholder_per_task(): void
     {
         // Production holds 353k results; eager-loading them produced

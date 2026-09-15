@@ -35,7 +35,7 @@ class AnalyticsService
             ->get()
             ->groupBy('backend_id');
 
-        return BackendGames::get()->map(function ($game) use ($countsByBackend, $types) {
+        return BackendGames::whereNull('deleted_at')->get()->map(function ($game) use ($countsByBackend, $types) {
             $byType = ($countsByBackend[$game->id] ?? collect())->pluck('total', 'type');
 
             $row = [

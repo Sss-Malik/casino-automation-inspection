@@ -117,9 +117,12 @@ class MakeRequestTest extends AutomationTestCase
         $response = $this->actingAs($this->superAdmin())
             ->post('/requests/send', ['endpoint' => 'read-backend', 'backend' => 'juwa', 'repeat' => 2]);
 
-        $response->assertSessionHas('responses', fn ($responses) => count($responses) === 2
+        // No point re-trying a dead host: with a 15s timeout, 20 repeats would
+        // outlive the web server's request timeout and lose the result page.
+        $response->assertSessionHas('responses', fn ($responses) => count($responses) === 1
             && $responses[0]['status'] === 0
-            && str_contains($responses[0]['body']['error'], 'Failed to connect'));
+            && str_contains($responses[0]['body']['error'], 'Failed to connect')
+            && str_contains($responses[0]['body']['note'], '1 remaining'));
     }
 
     public function test_send_caps_the_repeat_count(): void

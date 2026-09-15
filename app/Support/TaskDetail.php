@@ -13,6 +13,17 @@ use Illuminate\Support\Str;
  */
 class TaskDetail
 {
+    /**
+     * The detail as a JSON string for a raw DataTables column. Emitted as a
+     * string on purpose: Yajra HTML-escapes every nested value of an array
+     * column, and the modal renders with .text(), so entities would show
+     * literally and a presigned screenshot URL with & would break.
+     */
+    public static function json(?AutomationResult $result, ?AutomationRequest $request): string
+    {
+        return json_encode(self::make($result, $request), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
     public static function make(?AutomationResult $result, ?AutomationRequest $request): array
     {
         return [
@@ -41,14 +52,18 @@ class TaskDetail
      * Compact one-line JSON of a request payload for a table cell, with the
      * full JSON in a tooltip. `action` is dropped: the Type column has it.
      */
-    public static function payloadCell(?array $payload): string
+    public static function payloadCell(mixed $payload): string
     {
-        if (! $payload) {
+        if ($payload === null || $payload === [] || $payload === '') {
             return '—';
         }
 
-        unset($payload['action']);
-        $json = json_encode($payload, JSON_UNESCAPED_SLASHES);
+        // The column is free JSON written by the Python service; the `array`
+        // cast hands a scalar document straight through.
+        if (is_array($payload)) {
+            unset($payload['action']);
+        }
+        $json = is_string($payload) ? $payload : json_encode($payload, JSON_UNESCAPED_SLASHES);
 
         return '<code class="small payload-cell" role="button" data-bs-toggle="tooltip" title="'.e($json).'">'
             .e(Str::limit($json, 80))

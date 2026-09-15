@@ -84,6 +84,7 @@
                 },
                 pageLength: 25,
                 ordering: false,
+                searchDelay: 500,
                 columns: [
                     { data: 'id' },
                     { data: 'type' },

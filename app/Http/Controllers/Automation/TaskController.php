@@ -7,6 +7,7 @@ use App\Models\AutomationResult;
 use App\Models\BackendGames;
 use App\Support\Format;
 use App\Support\TaskDetail;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -25,33 +26,39 @@ class TaskController extends Controller
         return view('automation.task.index', compact('backends'));
     }
 
-    public function data()
+    /**
+     * Server-side rows. This runs against the live database (350k+ rows), so
+     * every filter is either an indexed column predicate or a single-pass
+     * subquery — never a per-row EXISTS, which MySQL 5.7 will not semi-join.
+     */
+    public function data(Request $request)
     {
         // Ordered by id, not created_at: the two are monotonic together and
-        // only id is indexed (350k+ rows, no created_at index).
-        $query = AutomationResult::with('backend', 'request')->orderByDesc('id');
+        // only id is indexed. task_id is a unique-index point lookup, so it
+        // arrives as its own parameter rather than through the LIKE search.
+        $query = AutomationResult::with('backend', 'request')
+            ->when($request->input('task_id'), fn ($q, $taskId) => $q->where('task_id', trim($taskId)))
+            ->orderByDesc('id');
 
         return DataTables::eloquent($query)
             ->filterColumn('backend', function ($query, $keyword) {
-                $query->whereHas('backend', function ($q) use ($keyword) {
-                    $q->where('name', 'LIKE', "%{$keyword}%");
-                });
+                if (ctype_digit($keyword)) {
+                    $query->where('backend_id', (int) $keyword);
+                }
             })
-            ->filterColumn('status', function ($query, $keyword) {
-                $query->where('status', 'LIKE', "%{$keyword}%");
-            })
+            ->filterColumn('status', fn ($query, $keyword) => $query->where('status', $keyword))
             ->filterColumn('type', function ($query, $keyword) {
-                $query->whereHas('request', fn ($q) => $q->where('type', $keyword));
+                $query->whereIn('task_id', fn ($q) => $q->select('task_id')->from('automation_requests')->where('type', $keyword));
             })
             ->filterColumn('payload', function ($query, $keyword) {
-                $query->whereHas('request', fn ($q) => $q->where('payload', 'LIKE', "%{$keyword}%"));
+                $query->whereIn('task_id', fn ($q) => $q->select('task_id')->from('automation_requests')->where('payload', 'LIKE', "%{$keyword}%"));
             })
             ->addColumn('backend', fn($row) => $row->backend?->name ?? '')
             ->addColumn('type', fn ($row) => $row->request
                 ? '<span class="badge bg-secondary text-white fs-10">'.e($row->request->type).'</span>'
                 : '—')
             ->addColumn('payload', fn ($row) => TaskDetail::payloadCell($row->request?->payload))
-            ->addColumn('detail', fn ($row) => TaskDetail::make($row, $row->request))
+            ->addColumn('detail', fn ($row) => TaskDetail::json($row, $row->request))
             ->addColumn('created_at', fn($row) => Format::dateTime($row->created_at))
             ->addColumn('updated_at', fn($row) => Format::dateTime($row->updated_at))
             ->addColumn('data_rendered', function ($row) {
@@ -85,11 +92,12 @@ class TaskController extends Controller
                 return '
                 <span class="desc-tooltip"
                       data-bs-toggle="tooltip"
+                      data-bs-html="true"
                       title="' . nl2br($full) . '">
                       ' . e($truncated) . '
                 </span>';
             })
-            ->rawColumns(['type', 'payload', 'data_rendered', 'screenshot', 'action', 'description', 'status'])
+            ->rawColumns(['type', 'payload', 'detail', 'data_rendered', 'screenshot', 'action', 'description', 'status'])
             ->make(true);
     }
 }

@@ -63,6 +63,7 @@
                 serverSide: true,
                 ajax: '{{ route('request.data') }}',
                 ordering: false,
+                searchDelay: 500,
                 pageLength: 10,
                 columns: [
                     { data: 'id', name: 'id' },

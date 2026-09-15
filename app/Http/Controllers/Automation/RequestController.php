@@ -77,11 +77,19 @@ class RequestController extends Controller
                     'body'   => $resp->json() ?? ['raw' => $resp->body()],
                 ];
             } catch (ConnectionException $e) {
-                // An unreachable service is a finding, not a crash: show it.
+                // An unreachable service is a finding, not a crash: show it,
+                // and stop — re-trying a dead host at 15s a go would outlive
+                // the web server's request timeout and lose this page.
+                $remaining = $data['repeat'] - $i - 1;
                 $responses[] = [
                     'status' => 0,
-                    'body'   => ['error' => 'Automation service unreachable: '.$e->getMessage(), 'url' => "$apiBase/{$data['endpoint']}"],
+                    'body'   => [
+                        'error' => 'Automation service unreachable: '.$e->getMessage(),
+                        'url' => "$apiBase/{$data['endpoint']}",
+                        'note' => "{$remaining} remaining attempt(s) skipped",
+                    ],
                 ];
+                break;
             }
         }
 
@@ -104,7 +112,11 @@ class RequestController extends Controller
         return DataTables::eloquent($query)
             ->filterColumn('type_badge', fn ($query, $keyword) => $query->where('type', $keyword))
             ->filterColumn('backend', function ($query, $keyword) {
-                $query->whereHas('result.backend', fn ($q) => $q->where('name', 'LIKE', "%{$keyword}%"));
+                // One pass over automation_results by its indexed backend_id,
+                // not a per-row EXISTS.
+                if (ctype_digit($keyword)) {
+                    $query->whereIn('task_id', fn ($q) => $q->select('task_id')->from('automation_results')->where('backend_id', (int) $keyword));
+                }
             })
             ->filterColumn('payload', fn ($query, $keyword) => $query->where('payload', 'LIKE', "%{$keyword}%"))
             ->editColumn('task_id', function ($req) {
@@ -132,10 +144,10 @@ class RequestController extends Controller
             })
             ->addColumn('backend', fn ($req) => $req->result?->backend?->name ?? '')
             ->addColumn('payload', fn ($req) => TaskDetail::payloadCell($req->payload))
-            ->addColumn('detail', fn ($req) => TaskDetail::make($req->result, $req))
+            ->addColumn('detail', fn ($req) => TaskDetail::json($req->result, $req))
             ->addColumn('created_fmt', fn ($req) => Format::dateTime($req->created_at))
             ->addColumn('updated_fmt', fn ($req) => Format::dateTime($req->updated_at))
-            ->rawColumns(['task_id', 'type_badge', 'status_badge', 'payload'])
+            ->rawColumns(['task_id', 'type_badge', 'status_badge', 'payload', 'detail'])
             ->make(true);
     }
 }

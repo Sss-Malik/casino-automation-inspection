@@ -51,7 +51,11 @@
 
 @push('scripts')
     <script>
+        // `task` is TaskDetail::json() — a JSON string in the row data.
         window.showTaskDetail = function (task) {
+            if (typeof task === 'string') {
+                try { task = JSON.parse(task); } catch (e) { task = {}; }
+            }
             task = task || {};
             const text = (v) => (v === null || v === undefined || v === '') ? '—' : v;
             const json = (v) => {
@@ -74,7 +78,7 @@
             $('#t-updated').text(text(task.updated_at));
             $('#t-desc').text(text(task.description));
 
-            const status = task.status || 'pending';
+            const status = task.status || 'no result';
             const cls = {success: 'bg-success', finished: 'bg-success', failed: 'bg-danger', pending: 'bg-warning'}[status] || 'bg-secondary';
             $('#t-status').removeClass('bg-success bg-danger bg-warning bg-secondary').addClass(cls).text(status);
 

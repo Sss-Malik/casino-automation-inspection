@@ -54,13 +54,13 @@ class LogsPageTest extends AutomationTestCase
     public function test_logs_data_filters_by_backend_and_type(): void
     {
         $juwa = $this->backend('juwa');
-        $river = $this->backend('river');
+        $juwa2 = $this->backend('juwa2');
         $this->log(['backend_id' => $juwa, 'type' => 'error', 'description' => 'juwa error']);
         $this->log(['backend_id' => $juwa, 'type' => 'info', 'description' => 'juwa info']);
-        $this->log(['backend_id' => $river, 'type' => 'error', 'description' => 'river error']);
+        $this->log(['backend_id' => $juwa2, 'type' => 'error', 'description' => 'juwa2 error']);
 
         $response = $this->actingAs($this->superAdmin())->getJson(
-            '/logs/data?'.$this->dataTablesQuery($this->columns, ['backend' => 'juwa', 'type' => 'error'])
+            '/logs/data?'.$this->dataTablesQuery($this->columns, ['backend' => (string) $juwa, 'type' => 'error'])
         );
 
         $response->assertOk()->assertJsonPath('recordsFiltered', 1);
@@ -78,10 +78,11 @@ class LogsPageTest extends AutomationTestCase
 
     public function test_logs_page_lists_backend_filter_options_from_the_database(): void
     {
-        $this->backend('dragonfury');
+        $id = $this->backend('dragonfury');
 
         $this->actingAs($this->superAdmin())->get('/logs')
             ->assertOk()
-            ->assertSee('<option value="dragonfury"', false);
+            ->assertSee('<option value="'.$id.'"', false)
+            ->assertSee('dragonfury');
     }
 }

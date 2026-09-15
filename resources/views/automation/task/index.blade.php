@@ -41,6 +41,15 @@
                                     @endforeach
                                 </select>
                             </div>
+                            <div class="col-md-5">
+                                <label for="taskFilter">Task ID</label>
+                                <div class="input-group">
+                                    <input type="text" id="taskFilter" class="form-control font-monospace"
+                                           placeholder="paste a task id to see only that task"
+                                           value="{{ request()->query('task_id', '') }}">
+                                    <button type="button" id="taskFilterClear" class="btn btn-light">Clear</button>
+                                </div>
+                            </div>
                         </div>
 
                         <table id="datatable-basic" class="table table-bordered text-nowrap w-100">
@@ -77,14 +86,22 @@
 @push('scripts')
     <script>
         $(document).ready(function () {
+            const taskFilter = $('#taskFilter');
+
             const table = $('#datatable-basic').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('tasks.data') }}",
+                ajax: {
+                    url: "{{ route('tasks.data') }}",
+                    // ?task_id= (from the logs page and make-request results) is an
+                    // exact, indexed lookup — kept out of the global LIKE search.
+                    data: function (d) {
+                        d.task_id = taskFilter.val().trim();
+                    }
+                },
                 pageLength: 10,
                 ordering: false,
-                // ?task_id= lets the logs page and make-request results link straight to a task
-                search: { search: @json(request()->query('task_id', '')) },
+                searchDelay: 500,
                 columns: [
                     { data: 'id' },
                     { data: 'user_id' },
@@ -115,6 +132,17 @@
 
             $('#typeFilter').on('change', function () {
                 table.column(4).search($(this).val()).draw();
+            });
+
+            let taskTimer;
+            taskFilter.on('input', function () {
+                clearTimeout(taskTimer);
+                taskTimer = setTimeout(() => table.draw(), 300);
+            });
+
+            $('#taskFilterClear').on('click', function () {
+                taskFilter.val('');
+                table.draw();
             });
 
             $('#datatable-basic').on('draw.dt', function () {

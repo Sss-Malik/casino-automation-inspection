@@ -38,7 +38,9 @@ class LogsController extends Controller
 
         return DataTables::eloquent($query)
             ->filterColumn('backend', function ($query, $keyword) {
-                $query->whereHas('backend', fn ($q) => $q->where('name', 'LIKE', "%{$keyword}%"));
+                if (ctype_digit($keyword)) {
+                    $query->where('backend_id', (int) $keyword);
+                }
             })
             ->filterColumn('type', fn ($query, $keyword) => $query->where('type', $keyword))
             ->addColumn('backend', fn ($row) => $row->backend?->name ?? '')
